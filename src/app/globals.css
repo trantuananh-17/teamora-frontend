@@ -7,11 +7,16 @@
 /*
  * shadcn/ui token set, style `radix-nova`, baseColor `neutral`.
  *
- * Taken from Ragenta's token file (ADR-003) with its brand violet removed:
- * Teamora has no brand ramp of its own, and a borrowed accent is a borrowed
- * name. `primary`, `ring` and the sidebar equivalents are therefore the plain
- * neutral values; `chart-1..5` keep Ragenta's five distinct hues, which are a
- * categorical ramp rather than an identity.
+ * Taken from Ragenta's token file (ADR-003), with its brand violet replaced
+ * rather than merely removed. Teamora's accent is a teal at hue 195 — the
+ * subject here is a journey (flights, coaches, hotels), and the first pass at
+ * this file left `primary` at plain neutral, which read as an accounting tool.
+ *
+ * 195 is deliberately far from all three status hues (success 163, warning 65,
+ * info 245) so a primary button never reads as a status. It is also why the
+ * accent is not the orange an events product reaches for first: at hue 40 it
+ * would sit between `warning` and `destructive`, and the main action on every
+ * screen would look like a caution.
  *
  * The rules below are the design contract. `.claude/rules/theming.md` is the
  * long form; this is the copy that travels with the code.
@@ -115,7 +120,7 @@
   --card-foreground: oklch(0.145 0 0);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
+  --primary: oklch(0.55 0.13 195);
   --primary-foreground: oklch(0.985 0 0);
   --secondary: oklch(0.97 0 0);
   --secondary-foreground: oklch(0.205 0 0);
@@ -129,21 +134,23 @@
   --info: oklch(0.5 0.118 245);
   --border: oklch(0.922 0 0);
   --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.6056 0.2189 292.72);
-  --chart-2: oklch(0.6 0.118 184);
+  --ring: oklch(0.62 0.11 195);
+  --chart-1: oklch(0.55 0.13 195);
+  --chart-2: oklch(0.6056 0.2189 292.72);
   --chart-3: oklch(0.62 0.155 45);
   --chart-4: oklch(0.55 0.16 330);
   --chart-5: oklch(0.58 0.13 230);
   --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
+  /* Faintly tinted so the sidebar reads as its own plane rather than as a
+     border drawn on the page. */
+  --sidebar: oklch(0.982 0.006 195);
   --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
+  --sidebar-primary: oklch(0.55 0.13 195);
   --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  --sidebar-accent: oklch(0.945 0.017 195);
+  --sidebar-accent-foreground: oklch(0.33 0.09 195);
+  --sidebar-border: oklch(0.91 0.008 195);
+  --sidebar-ring: oklch(0.62 0.11 195);
 }
 
 .dark {
@@ -153,8 +160,8 @@
   --card-foreground: oklch(0.985 0 0);
   --popover: oklch(0.205 0 0);
   --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
+  --primary: oklch(0.72 0.12 195);
+  --primary-foreground: oklch(0.18 0.03 195);
   --secondary: oklch(0.269 0 0);
   --secondary-foreground: oklch(0.985 0 0);
   --muted: oklch(0.269 0 0);
@@ -167,20 +174,20 @@
   --info: oklch(0.828 0.101 230);
   --border: oklch(1 0 0 / 10%);
   --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.7093 0.1589 293.54);
-  --chart-2: oklch(0.7 0.12 184);
+  --ring: oklch(0.65 0.1 195);
+  --chart-1: oklch(0.72 0.12 195);
+  --chart-2: oklch(0.7093 0.1589 293.54);
   --chart-3: oklch(0.73 0.15 60);
   --chart-4: oklch(0.68 0.16 330);
   --chart-5: oklch(0.7 0.12 230);
-  --sidebar: oklch(0.205 0 0);
+  --sidebar: oklch(0.19 0.012 195);
   --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.922 0 0);
-  --sidebar-primary-foreground: oklch(0.205 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-primary: oklch(0.72 0.12 195);
+  --sidebar-primary-foreground: oklch(0.18 0.03 195);
+  --sidebar-accent: oklch(0.27 0.03 195);
+  --sidebar-accent-foreground: oklch(0.92 0.04 195);
   --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  --sidebar-ring: oklch(0.65 0.1 195);
 }
 
 @layer base {

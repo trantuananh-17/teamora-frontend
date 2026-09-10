@@ -6,6 +6,7 @@ import { EnvScript } from "@/components/env-script"
 import { Providers } from "@/components/providers"
 import { ThemeProvider } from "@/components/theme-provider"
 import { Toaster } from "@/components/ui/sonner"
+import { TooltipProvider } from "@/components/ui/tooltip"
 import { cn } from "@/lib/utils"
 
 /**
@@ -48,8 +49,12 @@ export default function RootLayout({
             enableSystem
             disableTransitionOnChange
           >
-            {children}
-            <Toaster />
+            {/* The sidebar's collapsed rail shows each item's name as a
+                tooltip, so the provider has to be above it. */}
+            <TooltipProvider delayDuration={300}>
+              {children}
+              <Toaster />
+            </TooltipProvider>
           </ThemeProvider>
         </Providers>
       </body>

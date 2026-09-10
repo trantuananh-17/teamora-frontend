@@ -109,11 +109,7 @@ export function PickupPointsPanel({ eventId }: { eventId: string }) {
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <p className="text-sm text-muted-foreground">
-          Điểm tập trung cho bốn chặng xe (§4.5). Gắn với một địa điểm làm việc để CBNV ở nơi khác
-          không thấy nó trên form.
-        </p>
+      <div className="flex justify-end">
         <Button size="sm" onClick={() => setOpen(true)}>
           Thêm điểm đón
         </Button>

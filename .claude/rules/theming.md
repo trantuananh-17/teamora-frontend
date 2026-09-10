@@ -3,6 +3,14 @@
 Tailwind v4, **không có `tailwind.config.ts`**. Mọi thứ khai báo trong `src/app/globals.css`.
 shadcn/ui style `radix-nova`, baseColor `neutral`, `cssVariables: true`.
 
+**Màu nhấn của Teamora là teal, hue 195** (chốt 2026-09-11). Nó cách xa cả ba hue trạng thái —
+`success` 163, `warning` 65, `info` 245 — nên một nút chính không bao giờ đọc nhầm thành trạng
+thái. Đó cũng là lý do không dùng cam: hue 40 nằm giữa `warning` và `destructive`, và hành động
+chính trên mọi màn hình sẽ trông như một cảnh báo.
+
+Sidebar dùng bộ token `--sidebar-*` riêng, nhuộm nhẹ hue 195 để nó đọc ra như một mặt phẳng riêng
+chứ không phải một đường viền vẽ trên trang.
+
 ## Mọi màu là một token
 
 Không có class palette thô trong code ứng dụng. `text-emerald-600` là sai; `text-success` là đúng.

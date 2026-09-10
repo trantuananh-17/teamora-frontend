@@ -84,11 +84,7 @@ export function TeamsPanel({ eventId }: { eventId: string }) {
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <p className="text-sm text-muted-foreground">
-          CBNV chọn Team từ danh sách này khi đăng ký (§4.2). Import CBNV chỉ nhận Team{" "}
-          <strong>dùng chung</strong>.
-        </p>
+      <div className="flex justify-end">
         <Button size="sm" onClick={() => setOpen(true)}>
           Thêm Team
         </Button>
