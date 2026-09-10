@@ -1,0 +1,209 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
+/*
+ * shadcn/ui token set, style `radix-nova`, baseColor `neutral`.
+ *
+ * Taken from Ragenta's token file (ADR-003) with its brand violet removed:
+ * Teamora has no brand ramp of its own, and a borrowed accent is a borrowed
+ * name. `primary`, `ring` and the sidebar equivalents are therefore the plain
+ * neutral values; `chart-1..5` keep Ragenta's five distinct hues, which are a
+ * categorical ramp rather than an identity.
+ *
+ * The rules below are the design contract. `.claude/rules/theming.md` is the
+ * long form; this is the copy that travels with the code.
+ *
+ * ── Colour ────────────────────────────────────────────────────────────────
+ * Every colour is a token. No raw Tailwind palette class (`text-emerald-600`)
+ * in application code — a palette class cannot follow the theme, which is why
+ * each one used to drag a `dark:` override behind it.
+ *
+ * `success` / `warning` / `info` join `destructive` as status tokens. Each is
+ * defined at the lightness that reads as *text* in its own theme, so the one
+ * token serves all three jobs and needs no dark-mode counterpart:
+ *     text-success   bg-success/10   border-success/25
+ *
+ * What they mean in Teamora — map them in one place
+ * (`components/status-badge.tsx`), never by scattering colour conditions:
+ *     success            registered, seated, email sent
+ *     muted-foreground   not registered yet, awaiting allocation, email queued
+ *     warning            flagged — team split across flights, shift mismatch
+ *     destructive        over capacity, could not be seated, email failed
+ *     info               running, preview not yet committed
+ * An employee who has not registered is not an error. A table that is all red
+ * because nothing is finished yet is a table nobody reads.
+ *
+ * ── Radius ────────────────────────────────────────────────────────────────
+ * Derived from `--radius`; pick by what the thing *is*, never by eye:
+ *     rounded-lg    surfaces — cards, panels, sections, dialogs
+ *     rounded-md    controls — inputs, buttons, menu items, table frames
+ *     rounded-sm    inline chips, code spans, swatches
+ *     rounded-full  avatars, status dots, and genuine pills only
+ * Bare `rounded` is not part of the scale; it is Tailwind's 4px default and
+ * matches nothing else on screen.
+ *
+ * ── Type ──────────────────────────────────────────────────────────────────
+ *     text-2xl font-semibold tracking-tight   page title (one per screen)
+ *     text-base / text-lg font-semibold       section heading
+ *     text-sm                                 body, table cells, controls
+ *     text-sm text-muted-foreground           supporting copy
+ *     text-xs text-muted-foreground           metadata, timestamps, hints
+ * `text-xs` (12px) is the floor. §13 has employees looking this up on a phone,
+ * at an airport, in a hurry.
+ *
+ * ── Spacing ───────────────────────────────────────────────────────────────
+ * Flex/grid `gap-*`, not `space-y-*`, so the gap belongs to the container and
+ * does not break when a sibling renders conditionally — which happens on every
+ * My Journey screen before the organisers publish:
+ *     gap-1 / gap-2     tightly bound (label + badge, icon + text)
+ *     gap-3 / gap-4     related controls, form fields, grid cells
+ *     gap-6             component groups within a section
+ *     gap-8 / gap-12    page sections
+ */
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-mono);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-info: var(--info);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+}
+
+:root {
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.145 0 0);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.145 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.145 0 0);
+  --primary: oklch(0.205 0 0);
+  --primary-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.97 0 0);
+  --secondary-foreground: oklch(0.205 0 0);
+  --muted: oklch(0.97 0 0);
+  --muted-foreground: oklch(0.556 0 0);
+  --accent: oklch(0.97 0 0);
+  --accent-foreground: oklch(0.205 0 0);
+  --destructive: oklch(0.577 0.245 27.325);
+  --success: oklch(0.5 0.115 163);
+  --warning: oklch(0.499 0.126 65);
+  --info: oklch(0.5 0.118 245);
+  --border: oklch(0.922 0 0);
+  --input: oklch(0.922 0 0);
+  --ring: oklch(0.708 0 0);
+  --chart-1: oklch(0.6056 0.2189 292.72);
+  --chart-2: oklch(0.6 0.118 184);
+  --chart-3: oklch(0.62 0.155 45);
+  --chart-4: oklch(0.55 0.16 330);
+  --chart-5: oklch(0.58 0.13 230);
+  --radius: 0.625rem;
+  --sidebar: oklch(0.985 0 0);
+  --sidebar-foreground: oklch(0.145 0 0);
+  --sidebar-primary: oklch(0.205 0 0);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.97 0 0);
+  --sidebar-accent-foreground: oklch(0.205 0 0);
+  --sidebar-border: oklch(0.922 0 0);
+  --sidebar-ring: oklch(0.708 0 0);
+}
+
+.dark {
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.205 0 0);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.205 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.922 0 0);
+  --primary-foreground: oklch(0.205 0 0);
+  --secondary: oklch(0.269 0 0);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.269 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+  --accent: oklch(0.269 0 0);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.704 0.191 22.216);
+  --success: oklch(0.796 0.162 162);
+  --warning: oklch(0.879 0.153 92);
+  --info: oklch(0.828 0.101 230);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.556 0 0);
+  --chart-1: oklch(0.7093 0.1589 293.54);
+  --chart-2: oklch(0.7 0.12 184);
+  --chart-3: oklch(0.73 0.15 60);
+  --chart-4: oklch(0.68 0.16 330);
+  --chart-5: oklch(0.7 0.12 230);
+  --sidebar: oklch(0.205 0 0);
+  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-primary: oklch(0.922 0 0);
+  --sidebar-primary-foreground: oklch(0.205 0 0);
+  --sidebar-accent: oklch(0.269 0 0);
+  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.556 0 0);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  html {
+    @apply font-sans;
+  }
+}
+
+@layer base {
+  button:not([disabled]),
+  [role="button"]:not([disabled]) {
+    cursor: pointer;
+  }
+}
+
+:root,
+html,
+body {
+  height: 100%;
+}
