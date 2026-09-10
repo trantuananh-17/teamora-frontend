@@ -20,6 +20,23 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           </Link>
           <span className="text-xs text-muted-foreground">Quản trị</span>
         </div>
+        <nav className="flex flex-wrap items-center gap-4">
+          <Link href="/admin" className="text-sm text-muted-foreground hover:text-foreground">
+            Kỳ Team Building
+          </Link>
+          <Link
+            href="/admin/work-locations"
+            className="text-sm text-muted-foreground hover:text-foreground"
+          >
+            Địa điểm
+          </Link>
+          <Link
+            href="/admin/employees"
+            className="text-sm text-muted-foreground hover:text-foreground"
+          >
+            CBNV
+          </Link>
+        </nav>
         <div className="flex items-center gap-2">
           <Link href="/" className="text-sm text-muted-foreground hover:text-foreground">
             Hành trình của tôi
