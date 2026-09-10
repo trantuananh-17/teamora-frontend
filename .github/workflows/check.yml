@@ -1,0 +1,67 @@
+# Quality gate for pull requests, and the same gate a release runs before it
+# builds anything.
+name: Check
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  # Called by release.yml so a tag cannot ship code that would not pass a PR.
+  workflow_call:
+
+concurrency:
+  group: check-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # Node before corepack: corepack ships with Node, so it does not exist on
+      # PATH until this step has run.
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22" # matches Dockerfile's `FROM node:22-alpine`
+
+      - name: Enable corepack
+        run: corepack enable
+
+      - name: Locate the pnpm store
+        id: pnpm-store
+        run: echo "dir=$(pnpm store path --silent)" >> "$GITHUB_OUTPUT"
+
+      - name: Cache the pnpm store
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.pnpm-store.outputs.dir }}
+          key: pnpm-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: pnpm-${{ runner.os }}-
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint
+        run: pnpm lint
+
+      # Build BEFORE typecheck, and the order is not a preference: `next build`
+      # generates `next-env.d.ts` and `.next/types/**`, both of which
+      # `tsconfig.json` includes. Typechecking first either fails on the missing
+      # files or passes while skipping the route types entirely.
+      - name: Build
+        run: pnpm build
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      # No NEXT_PUBLIC_* variable may exist in this repo. One would be baked in
+      # at build time, and the same image could no longer serve both staging and
+      # production — which is the whole reason EnvScript exists.
+      - name: No build-time public environment variables
+        run: |
+          if grep -rn "process\.env\.NEXT_PUBLIC_" src/; then
+            echo "::error::NEXT_PUBLIC_* is baked in at build time. Add the value to EnvScript and read it through lib/config.ts instead."
+            exit 1
+          fi
