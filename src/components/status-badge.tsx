@@ -64,3 +64,14 @@ export function ActiveBadge({ active }: { active: boolean }) {
     <Badge tone={active ? "success" : "muted"}>{active ? "Đang dùng" : "Đã tắt"}</Badge>
   )
 }
+
+const NOTIFICATION_STATUS: Record<string, { label: string; tone: Tone }> = {
+  pending: { label: "Đang chờ", tone: "muted" },
+  sent: { label: "Đã gửi", tone: "success" },
+  failed: { label: "Gửi lỗi", tone: "destructive" },
+}
+
+export function NotificationStatusBadge({ status }: { status: string }) {
+  const mapped = NOTIFICATION_STATUS[status]
+  return <Badge tone={mapped?.tone ?? "muted"}>{mapped?.label ?? status}</Badge>
+}

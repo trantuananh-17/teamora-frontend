@@ -1,7 +1,11 @@
-import Link from "next/link"
-
-import { SignOutButton } from "@/features/auth/components"
+import { EmployeeAppHeader } from "@/components/employee-app-header"
+import { getMyEmployeeProfile } from "@/features/employees/service/employees.service"
+import { EventProvider } from "@/features/events/components/event-provider"
+import { getCurrentEvent } from "@/features/events/service/events.service"
+import { getMyRegistration } from "@/features/registration/service/registration.service"
 import { isOrganizer, requireAuth } from "@/lib/auth"
+
+export const dynamic = "force-dynamic"
 
 /**
  * The employee shell. Gates once here for the whole subtree; the pages below do
@@ -12,27 +16,25 @@ import { isOrganizer, requireAuth } from "@/lib/auth"
  */
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const { user } = await requireAuth()
+  const [event, employee] = await Promise.all([getCurrentEvent(), getMyEmployeeProfile()])
+  const registration = event ? await getMyRegistration(event.id) : null
 
   return (
-    <div className="flex min-h-svh flex-col">
-      <header className="flex items-center justify-between gap-4 border-b px-4 py-3 sm:px-6">
-        <Link href="/" className="text-base font-semibold tracking-tight">
-          Teamora
-        </Link>
-        <div className="flex items-center gap-2">
-          {isOrganizer(user) && (
-            <Link
-              href="/admin"
-              className="text-sm text-muted-foreground hover:text-foreground"
-            >
-              Quản trị
-            </Link>
-          )}
-          <span className="hidden text-sm text-muted-foreground sm:inline">{user.email}</span>
-          <SignOutButton />
-        </div>
-      </header>
-      <main className="flex flex-1 flex-col gap-6 p-4 sm:p-6">{children}</main>
-    </div>
+    <EventProvider value={{ event, registration, employee }}>
+      <div className="flex min-h-svh flex-col bg-muted/30">
+        <EmployeeAppHeader
+          event={event}
+          registration={registration}
+          user={{ name: user.name, email: user.email }}
+          organizer={isOrganizer(user)}
+        />
+        <main className="mx-auto flex w-full max-w-7xl flex-1 flex-col px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
+          {children}
+        </main>
+        <footer className="border-t bg-background px-4 py-4 text-center text-xs text-muted-foreground">
+          Teamora · Nguồn thông tin chính thức từ Ban Tổ chức
+        </footer>
+      </div>
+    </EventProvider>
   )
 }

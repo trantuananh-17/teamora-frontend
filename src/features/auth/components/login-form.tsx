@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import Link from "next/link"
 import { useSearchParams } from "next/navigation"
 
 import { Button } from "@/components/ui/button"
@@ -12,7 +13,7 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
+import { Field, FieldGroup, FieldLabel } from "@/components/ui/field"
 import { useLogin } from "../hooks/auth.hook"
 
 /**
@@ -30,10 +31,10 @@ export function LoginForm() {
 
   return (
     <Card>
-      <CardHeader>
-        <CardTitle>Đăng nhập Teamora</CardTitle>
+      <CardHeader className="gap-2">
+        <CardTitle className="text-2xl font-semibold tracking-tight">Chào mừng bạn trở lại</CardTitle>
         <CardDescription>
-          Dùng email công ty của bạn. Chưa có tài khoản thì liên hệ Ban Tổ chức.
+          Đăng nhập bằng email công ty để xem đăng ký và hành trình của bạn.
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -44,32 +45,38 @@ export function LoginForm() {
             login.mutate({ email, password })
           }}
         >
-          <div className="flex flex-col gap-2">
-            <Label htmlFor="email">Email</Label>
-            <Input
-              id="email"
-              type="email"
-              autoComplete="email"
-              required
-              value={email}
-              onChange={(event) => setEmail(event.target.value)}
-            />
-          </div>
+          <FieldGroup>
+            <Field>
+              <FieldLabel htmlFor="email">Email công ty</FieldLabel>
+              <Input
+                id="email"
+                type="email"
+                autoComplete="email"
+                placeholder="tenban@congty.vn"
+                required
+                value={email}
+                onChange={(event) => setEmail(event.target.value)}
+              />
+            </Field>
 
-          <div className="flex flex-col gap-2">
-            <Label htmlFor="password">Mật khẩu</Label>
-            <Input
-              id="password"
-              type="password"
-              autoComplete="current-password"
-              required
-              value={password}
-              onChange={(event) => setPassword(event.target.value)}
-            />
-          </div>
+            <Field>
+              <FieldLabel htmlFor="password">Mật khẩu</FieldLabel>
+              <Input
+                id="password"
+                type="password"
+                autoComplete="current-password"
+                required
+                value={password}
+                onChange={(event) => setPassword(event.target.value)}
+              />
+            </Field>
+          </FieldGroup>
 
-          <Button type="submit" disabled={login.isPending}>
+          <Button type="submit" size="lg" className="min-h-11 w-full" disabled={login.isPending}>
             {login.isPending ? "Đang đăng nhập…" : "Đăng nhập"}
+          </Button>
+          <Button asChild variant="link" className="min-h-11 w-full">
+            <Link href="/forgot-password">Thiết lập lần đầu hoặc quên mật khẩu</Link>
           </Button>
         </form>
       </CardContent>

@@ -16,6 +16,34 @@ export interface Credentials {
   password: string
 }
 
+export function useRequestPasswordReset() {
+  return useMutation({
+    mutationFn: async (email: string) => {
+      const { data, error } = await authClient.requestPasswordReset({ email })
+      if (error) throw new Error(error.message ?? "Không thể gửi hướng dẫn đặt mật khẩu.")
+      return data
+    },
+  })
+}
+
+export function useResetPassword() {
+  const router = useRouter()
+
+  return useMutation({
+    mutationFn: async ({ token, newPassword }: { token: string; newPassword: string }) => {
+      const { data, error } = await authClient.resetPassword({ token, newPassword })
+      if (error) throw new Error(error.message ?? "Không thể đặt lại mật khẩu.")
+      return data
+    },
+    onSuccess: () => {
+      toast.success("Đã thiết lập mật khẩu", {
+        description: "Bạn có thể đăng nhập bằng mật khẩu mới ngay bây giờ.",
+      })
+      router.replace("/login")
+    },
+  })
+}
+
 /**
  * Where to land after signing in. `redirect` is only honoured when it is a path
  * on this origin — an absolute URL there would be an open redirect.

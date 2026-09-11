@@ -7,7 +7,13 @@ export function SignOutButton() {
   const logout = useLogout()
 
   return (
-    <Button variant="ghost" size="sm" onClick={() => logout.mutate()} disabled={logout.isPending}>
+    <Button
+      variant="ghost"
+      size="sm"
+      className="min-h-11"
+      onClick={() => logout.mutate()}
+      disabled={logout.isPending}
+    >
       Đăng xuất
     </Button>
   )

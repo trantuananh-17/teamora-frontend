@@ -15,13 +15,24 @@ export const employeeSchema = z.object({
   active: z.boolean().nullable(),
 })
 
+export const employeeSelfSchema = employeeSchema.extend({
+  workLocationName: z.string().nullable(),
+  defaultTeamName: z.string().nullable(),
+})
+
 export type Employee = z.infer<typeof employeeSchema>
+export type EmployeeSelf = z.infer<typeof employeeSelfSchema>
 
 const listSchema = z.object({ items: z.array(employeeSchema) })
 
 export async function getEmployees(): Promise<Employee[]> {
   const response = await api.get("employees")
   return listSchema.parse(await response.json()).items
+}
+
+export async function getMyEmployeeProfile(): Promise<EmployeeSelf> {
+  const response = await api.get("employees/me")
+  return employeeSelfSchema.parse(await response.json())
 }
 
 export const importSummarySchema = z.object({

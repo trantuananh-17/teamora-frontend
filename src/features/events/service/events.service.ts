@@ -19,6 +19,11 @@ export const eventStatuses = [
 
 export type EventStatus = (typeof eventStatuses)[number]
 
+export const eventSettingsSchema = z.object({
+  terms: z.object({ version: z.string(), body: z.string() }).optional(),
+  shifts: z.array(z.object({ key: z.string(), label: z.string() })).optional(),
+}).passthrough()
+
 export const eventSchema = z.object({
   id: z.string(),
   name: z.string(),
@@ -27,6 +32,7 @@ export const eventSchema = z.object({
   registrationOpenAt: z.coerce.date().nullable(),
   registrationCloseAt: z.coerce.date().nullable(),
   publishedAt: z.coerce.date().nullable(),
+  settings: eventSettingsSchema,
   createdAt: z.coerce.date(),
 })
 
@@ -49,6 +55,11 @@ export async function getEvents(): Promise<EventsPage> {
 export async function getEvent(eventId: string): Promise<Event> {
   const response = await api.get(`events/${eventId}`)
   return eventSchema.parse(await response.json())
+}
+
+export async function getCurrentEvent(): Promise<Event | null> {
+  const response = await api.get("events/current")
+  return eventSchema.nullable().parse(await response.json())
 }
 
 export interface CreateEventInput {
