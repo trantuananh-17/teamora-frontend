@@ -1,6 +1,7 @@
 "use client"
 
 import Link from "next/link"
+import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { useEffect, useState } from "react"
 import {
   flexRender,
@@ -9,7 +10,7 @@ import {
   type ColumnDef,
   type RowData,
 } from "@tanstack/react-table"
-import { InboxIcon, PlusIcon, SearchIcon } from "lucide-react"
+import { ChevronLeftIcon, ChevronRightIcon, InboxIcon, PlusIcon, SearchIcon } from "lucide-react"
 
 import { PageHeader } from "@/components/page-header"
 import { Button } from "@/components/ui/button"
@@ -22,6 +23,14 @@ import {
   EmptyTitle,
 } from "@/components/ui/empty"
 import { Input } from "@/components/ui/input"
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import { Skeleton } from "@/components/ui/skeleton"
 import {
   Table,
@@ -145,18 +154,115 @@ export function EntityContainer({
   children,
 }: EntityContainerProps) {
   return (
-    <div className="flex h-full flex-col">
-      <div className={cn("mx-auto flex min-h-0 w-full flex-1 flex-col gap-6", CONTENT_WIDTHS[width])}>
+    <div className="flex flex-col pb-2">
+      <div className={cn("mx-auto flex w-full flex-col gap-6", CONTENT_WIDTHS[width])}>
         {header && <div className="shrink-0">{header}</div>}
         {stats && <div className="shrink-0">{stats}</div>}
         {search && <div className="shrink-0">{search}</div>}
         {actions && <div className="shrink-0">{actions}</div>}
-        <div className="flex min-h-0 flex-1 flex-col overflow-auto rounded-md border bg-background">
+        <div className="flex min-h-64 flex-col overflow-hidden rounded-md border bg-background">
           {children}
         </div>
         {pagination && <div className="shrink-0">{pagination}</div>}
       </div>
     </div>
+  )
+}
+
+export function EntityPagination({
+  total,
+  page,
+  pageSize,
+  onPageChange,
+  onPageSizeChange,
+}: {
+  total: number
+  page: number
+  pageSize: number
+  onPageChange: (page: number) => void
+  onPageSizeChange: (pageSize: number) => void
+}) {
+  const pageCount = Math.max(1, Math.ceil(total / pageSize))
+  const safePage = Math.min(Math.max(1, page), pageCount)
+  const first = total === 0 ? 0 : (safePage - 1) * pageSize + 1
+  const last = Math.min(safePage * pageSize, total)
+
+  return (
+    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      <p className="text-sm text-muted-foreground">
+        Hiển thị {first}–{last} trong tổng số {total}
+      </p>
+      <div className="flex flex-wrap items-center gap-2">
+        <span className="text-sm text-muted-foreground">Số dòng</span>
+        <Select value={String(pageSize)} onValueChange={(value) => onPageSizeChange(Number(value))}>
+          <SelectTrigger className="w-20" aria-label="Số dòng mỗi trang">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectGroup>
+              {[10, 25, 50, 100].map((size) => (
+                <SelectItem key={size} value={String(size)}>{size}</SelectItem>
+              ))}
+            </SelectGroup>
+          </SelectContent>
+        </Select>
+        <span className="min-w-24 text-center text-sm tabular-nums">
+          Trang {safePage}/{pageCount}
+        </span>
+        <Button
+          type="button"
+          size="icon-sm"
+          variant="outline"
+          aria-label="Trang trước"
+          disabled={safePage <= 1}
+          onClick={() => onPageChange(safePage - 1)}
+        >
+          <ChevronLeftIcon />
+        </Button>
+        <Button
+          type="button"
+          size="icon-sm"
+          variant="outline"
+          aria-label="Trang sau"
+          disabled={safePage >= pageCount}
+          onClick={() => onPageChange(safePage + 1)}
+        >
+          <ChevronRightIcon />
+        </Button>
+      </div>
+    </div>
+  )
+}
+
+export function EntityUrlPagination({
+  total,
+  page,
+  pageSize,
+}: {
+  total: number
+  page: number
+  pageSize: number
+}) {
+  const pathname = usePathname()
+  const router = useRouter()
+  const searchParams = useSearchParams()
+
+  function replace(changes: { page?: number; pageSize?: number }) {
+    const next = new URLSearchParams(searchParams.toString())
+    if (changes.page === undefined || changes.page === 1) next.delete("page")
+    else next.set("page", String(changes.page))
+    if (changes.pageSize !== undefined) next.set("pageSize", String(changes.pageSize))
+    router.replace(`${pathname}${next.size ? `?${next}` : ""}`)
+  }
+
+  return (
+    <EntityPagination
+      total={total}
+      page={page}
+      pageSize={pageSize}
+      onPageChange={(nextPage) => replace({ page: nextPage })}
+      onPageSizeChange={(nextPageSize) => replace({ page: 1, pageSize: nextPageSize })}
+    />
   )
 }
 

@@ -1,6 +1,6 @@
 "use client"
 
-import { usePathname, useRouter } from "next/navigation"
+import { usePathname, useRouter, useSearchParams } from "next/navigation"
 
 import {
   Select,
@@ -15,14 +15,19 @@ import type { NotificationStatus } from "../service/notifications.service"
 export function NotificationsToolbar({ status }: { status?: NotificationStatus }) {
   const pathname = usePathname()
   const router = useRouter()
+  const searchParams = useSearchParams()
 
   return (
     <div className="flex max-w-sm">
       <Select
         value={status ?? "all"}
-        onValueChange={(value) =>
-          router.replace(value === "all" ? pathname : `${pathname}?status=${value}`)
-        }
+        onValueChange={(value) => {
+          const next = new URLSearchParams(searchParams.toString())
+          if (value === "all") next.delete("status")
+          else next.set("status", value)
+          next.delete("page")
+          router.replace(`${pathname}${next.size ? `?${next}` : ""}`)
+        }}
       >
         <SelectTrigger aria-label="Lọc theo trạng thái email">
           <SelectValue placeholder="Tất cả trạng thái" />

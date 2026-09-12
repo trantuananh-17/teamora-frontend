@@ -5,7 +5,7 @@ import type { ListRegistrationsParams } from "../service/registration-admin.serv
 
 export async function prefetchRegistrationsList(eventId: string, params: ListRegistrationsParams) {
   const queryClient = getQueryClient()
-  await queryClient.prefetchQuery(registrationsListOptions(eventId, params))
+  return queryClient.fetchQuery(registrationsListOptions(eventId, params))
 }
 
 export async function prefetchRegistrationStats(eventId: string) {

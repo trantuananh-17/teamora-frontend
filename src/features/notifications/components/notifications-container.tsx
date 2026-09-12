@@ -3,9 +3,11 @@ import { PageHeader } from "@/components/page-header"
 
 export function NotificationsContainer({
   toolbar,
+  pagination,
   children,
 }: {
   toolbar: React.ReactNode
+  pagination?: React.ReactNode
   children: React.ReactNode
 }) {
   return (
@@ -17,6 +19,7 @@ export function NotificationsContainer({
         />
       }
       search={toolbar}
+      pagination={pagination}
     >
       {children}
     </EntityContainer>

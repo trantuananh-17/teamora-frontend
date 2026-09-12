@@ -13,6 +13,7 @@ import {
   LayoutDashboardIcon,
   LogOutIcon,
   MapPinIcon,
+  PlaneTakeoffIcon,
   UsersIcon,
   UsersRoundIcon,
 } from "lucide-react"
@@ -65,6 +66,7 @@ export interface NavItem {
 export const EVENT_NAV: NavItem[] = [
   { title: "Tổng quan", icon: LayoutDashboardIcon, url: "/admin/events/:eventId" },
   { title: "Đăng ký", icon: ClipboardCheckIcon, url: "/admin/events/:eventId/registrations" },
+  { title: "Chuyến bay", icon: PlaneTakeoffIcon, url: "/admin/events/:eventId/flights" },
   { title: "Email & thông báo", icon: BellRingIcon, url: "/admin/events/:eventId/notifications" },
   { title: "Team / Bộ phận", icon: UsersRoundIcon, url: "/admin/events/:eventId/teams" },
   { title: "Điểm đón", icon: MapPinIcon, url: "/admin/events/:eventId/pickup-points" },

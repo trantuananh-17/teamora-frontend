@@ -1,7 +1,7 @@
 import { Suspense } from "react"
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query"
 
-import { EntityContainer, EntityTableSkeleton } from "@/components/entity-components"
+import { EntityContainer, EntityTableSkeleton, EntityUrlPagination } from "@/components/entity-components"
 import { PageHeader } from "@/components/page-header"
 import { getTeams } from "@/features/registration/service/master-data.service"
 import { RegistrationStatsCards } from "@/features/registration/components/registration-stats"
@@ -27,9 +27,12 @@ export default async function RegistrationsAdminPage({
   await requireOrganizer()
   const { eventId } = await params
   const raw = await searchParams
+  const page = positiveInteger(single(raw.page), 1)
+  const requestedPageSize = positiveInteger(single(raw.pageSize), 25)
+  const pageSize = [10, 25, 50, 100].includes(requestedPageSize) ? requestedPageSize : 25
   const filters: ListRegistrationsParams = {
-    limit: 100,
-    offset: 0,
+    limit: pageSize,
+    offset: (page - 1) * pageSize,
     search: single(raw.search),
     teamId: single(raw.teamId),
     participating: booleanParam(raw.participating),
@@ -37,7 +40,7 @@ export default async function RegistrationsAdminPage({
     shiftLocked: booleanParam(raw.shiftLocked),
   }
 
-  const [, , teams] = await Promise.all([
+  const [, registrations, teams] = await Promise.all([
     prefetchRegistrationStats(eventId),
     prefetchRegistrationsList(eventId, filters),
     getTeams(eventId),
@@ -57,6 +60,7 @@ export default async function RegistrationsAdminPage({
         </HydrationBoundary>
       }
       search={<RegistrationToolbar eventId={eventId} teams={teams} params={filters} />}
+      pagination={<EntityUrlPagination total={registrations.total} page={page} pageSize={pageSize} />}
     >
       <HydrationBoundary state={dehydrate(getQueryClient())}>
         <Suspense fallback={<EntityTableSkeleton columns={6} />}>
@@ -79,4 +83,9 @@ function booleanParam(value: string | string[] | undefined): boolean | undefined
 function shiftParam(value: string | string[] | undefined): "shift_1" | "shift_2" | undefined {
   const parsed = single(value)
   return parsed === "shift_1" || parsed === "shift_2" ? parsed : undefined
+}
+
+function positiveInteger(value: string | undefined, fallback: number) {
+  const parsed = Number(value)
+  return Number.isInteger(parsed) && parsed > 0 ? parsed : fallback
 }

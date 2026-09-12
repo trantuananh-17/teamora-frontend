@@ -38,6 +38,7 @@ export function RegistrationToolbar({
     const next = new URLSearchParams(current.toString())
     if (value && value !== "all") next.set(name, value)
     else next.delete(name)
+    next.delete("page")
     router.replace(`${pathname}${next.size ? `?${next}` : ""}`)
   }
 
