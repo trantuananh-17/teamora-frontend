@@ -5,6 +5,8 @@ import { usePathname } from "next/navigation"
 import { useQuery } from "@tanstack/react-query"
 import {
   BellRingIcon,
+  BedDoubleIcon,
+  BusIcon,
   BuildingIcon,
   CalendarDaysIcon,
   CheckIcon,
@@ -67,6 +69,8 @@ export const EVENT_NAV: NavItem[] = [
   { title: "Tổng quan", icon: LayoutDashboardIcon, url: "/admin/events/:eventId" },
   { title: "Đăng ký", icon: ClipboardCheckIcon, url: "/admin/events/:eventId/registrations" },
   { title: "Chuyến bay", icon: PlaneTakeoffIcon, url: "/admin/events/:eventId/flights" },
+  { title: "Xe đưa đón", icon: BusIcon, url: "/admin/events/:eventId/vehicles" },
+  { title: "Khách sạn & phòng", icon: BedDoubleIcon, url: "/admin/events/:eventId/accommodations" },
   { title: "Email & thông báo", icon: BellRingIcon, url: "/admin/events/:eventId/notifications" },
   { title: "Team / Bộ phận", icon: UsersRoundIcon, url: "/admin/events/:eventId/teams" },
   { title: "Điểm đón", icon: MapPinIcon, url: "/admin/events/:eventId/pickup-points" },

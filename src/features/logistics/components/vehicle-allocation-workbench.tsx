@@ -1,0 +1,32 @@
+"use client"
+import Link from "next/link"
+import { usePathname, useRouter, useSearchParams } from "next/navigation"
+import { useState } from "react"
+import type { ColumnDef } from "@tanstack/react-table"
+import { ArrowLeftIcon, LockIcon, PencilIcon, UnlockIcon } from "lucide-react"
+import { EntityContainer, EntityDataTable, EntityHeader, EntityPagination } from "@/components/entity-components"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Field, FieldLabel } from "@/components/ui/field"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { useManualAssignVehicle, useSetVehicleLock, useVehicleAssignments, useVehicles } from "../hooks/logistics.hook"
+import type { VehicleAssignmentView } from "../service/logistics.service"
+import { transportLegs } from "../service/logistics.service"
+const labels = { origin_to_airport: "Nơi ở → sân bay", airport_to_hotel: "Sân bay → KS", hotel_to_airport: "KS → sân bay", airport_to_origin: "Sân bay → nơi ở" }
+export function VehicleAllocationWorkbench({ eventId, page, pageSize }: { eventId: string; page: number; pageSize: number }) {
+  const { data: assignments } = useVehicleAssignments(eventId, page, pageSize); const { data: vehicles } = useVehicles(eventId); const [editing, setEditing] = useState<VehicleAssignmentView | null>(null); const lock = useSetVehicleLock(eventId)
+  const router = useRouter(); const pathname = usePathname(); const search = useSearchParams(); const setPage = (nextPage: number, nextSize = pageSize) => { const params = new URLSearchParams(search.toString()); params.set("page", String(nextPage)); params.set("pageSize", String(nextSize)); router.replace(`${pathname}?${params}`) }
+  const columns: ColumnDef<VehicleAssignmentView>[] = [
+    { accessorKey: "user.name", header: "CBNV", cell: ({ row }) => <div><div className="font-medium">{row.original.user.name}</div><div className="text-xs text-muted-foreground">{row.original.team.name}</div></div> },
+    { accessorKey: "leg", header: "Chặng", cell: ({ row }) => <Badge variant="outline">{labels[row.original.leg]}</Badge> },
+    { id: "vehicle", header: "Xe", cell: ({ row }) => row.original.assignment ? <div><div className="font-medium">{row.original.assignment.vehicle.code}</div><div className="text-xs text-muted-foreground">{row.original.assignment.vehicle.name}</div></div> : <span className="text-destructive">Chưa xếp</span> },
+    { id: "source", header: "Nguồn", cell: ({ row }) => row.original.assignment?.source === "manual" ? "Thủ công" : row.original.assignment ? "Tự động" : "—" },
+    { id: "actions", header: "", cell: ({ row }) => <div className="flex justify-end gap-1"><Button size="icon-sm" variant="ghost" onClick={() => setEditing(row.original)}><PencilIcon /></Button>{row.original.assignment && <Button size="icon-sm" variant="ghost" onClick={() => lock.mutate({ assignmentId: row.original.assignment!.id, locked: !row.original.assignment!.locked })}>{row.original.assignment.locked ? <LockIcon /> : <UnlockIcon />}</Button>}</div> },
+  ]
+  return <EntityContainer header={<EntityHeader title="Bàn phân xe" description="Kiểm tra kết quả bốn chặng, điều chỉnh thủ công và khóa các vị trí cần giữ." actions={<Button asChild variant="outline"><Link href={`/admin/events/${eventId}/vehicles`}><ArrowLeftIcon />Danh sách xe</Link></Button>} />} pagination={<EntityPagination total={assignments.total} page={page} pageSize={pageSize} onPageChange={(x) => setPage(x)} onPageSizeChange={(x) => setPage(1, x)} />}><EntityDataTable columns={columns} data={assignments.items} /><ManualDialog key={editing?.registrationId ?? "closed"} eventId={eventId} row={editing} vehicles={vehicles.items} close={() => setEditing(null)} /></EntityContainer>
+}
+function ManualDialog({ eventId, row, vehicles, close }: { eventId: string; row: VehicleAssignmentView | null; vehicles: { id: string; code: string; name: string; leg: typeof transportLegs[number]; capacity: number; assignedCount: number }[]; close: () => void }) {
+  const [vehicleId, setVehicleId] = useState(""); const assign = useManualAssignVehicle(eventId); const candidates = vehicles.filter((x) => x.leg === row?.leg)
+  return <Dialog open={Boolean(row)} onOpenChange={(x) => !x && close()}><DialogContent><DialogHeader><DialogTitle>Đổi xe cho {row?.user.name}</DialogTitle><DialogDescription>Điều chỉnh thủ công sẽ tự khóa vị trí khi chạy preview lại.</DialogDescription></DialogHeader><Field><FieldLabel>Xe mới</FieldLabel><Select value={vehicleId} onValueChange={setVehicleId}><SelectTrigger><SelectValue placeholder="Chọn xe" /></SelectTrigger><SelectContent>{candidates.map((x) => <SelectItem key={x.id} value={x.id}>{x.code} · {x.name} ({x.assignedCount}/{x.capacity})</SelectItem>)}</SelectContent></Select></Field><DialogFooter><Button variant="outline" onClick={close}>Hủy</Button><Button disabled={!vehicleId || assign.isPending} onClick={() => row && assign.mutate({ registrationId: row.registrationId, vehicleId }, { onSuccess: close })}>Lưu điều chỉnh</Button></DialogFooter></DialogContent></Dialog>
+}
