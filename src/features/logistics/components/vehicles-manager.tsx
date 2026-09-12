@@ -3,7 +3,7 @@ import { useState } from "react"
 import Link from "next/link"
 import type { ColumnDef } from "@tanstack/react-table"
 import { useQuery } from "@tanstack/react-query"
-import { BusIcon, CheckCircle2Icon, PencilIcon, SparklesIcon, Trash2Icon, XCircleIcon } from "lucide-react"
+import { BusIcon, CheckCircle2Icon, DownloadIcon, PencilIcon, SparklesIcon, Trash2Icon, XCircleIcon } from "lucide-react"
 import { EntityContainer, EntityDataTable, EntityEmptyView, EntityHeader } from "@/components/entity-components"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -14,7 +14,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea"
 import { getPickupPoints } from "@/features/pickup-points/service/pickup-points.service"
 import { useCommitVehicles, useCreateVehicle, useDeleteVehicle, useDiscardVehicles, usePreviewVehicles, useUpdateVehicle, useVehicleRuns, useVehicles } from "../hooks/logistics.hook"
-import { transportLegs, type TransportLeg, type Vehicle, type VehicleInput } from "../service/logistics.service"
+import { transportLegs, vehiclesExportUrl, type TransportLeg, type Vehicle, type VehicleInput } from "../service/logistics.service"
 
 const labels: Record<TransportLeg, string> = { origin_to_airport: "Nơi ở → sân bay", airport_to_hotel: "Sân bay → khách sạn", hotel_to_airport: "Khách sạn → sân bay", airport_to_origin: "Sân bay → nơi ở" }
 const local = (date: Date) => new Intl.DateTimeFormat("sv-SE", { timeZone: "Asia/Ho_Chi_Minh", year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" }).format(date).replace(" ", "T")
@@ -35,7 +35,7 @@ export function VehiclesManager({ eventId }: { eventId: string }) {
     { accessorKey: "leaderName", header: "Trưởng xe", cell: ({ row }) => row.original.leaderName || "—" },
     { id: "actions", header: "", cell: ({ row }) => <div className="flex justify-end gap-1"><Button size="icon-sm" variant="ghost" onClick={() => setEditing(row.original)}><PencilIcon /></Button><Button size="icon-sm" variant="ghost" disabled={row.original.assignedCount > 0} onClick={() => remove.mutate(row.original.id)}><Trash2Icon /></Button></div> },
   ]
-  return <EntityContainer header={<EntityHeader title="Xe đưa đón" description="Cấu hình xe cho bốn chặng và phân bổ dựa trên chuyến bay đã chốt." newButtonLabel="Thêm xe" onNew={() => setEditing(null)} actions={<div className="flex gap-2"><Button asChild variant="outline"><Link href={`/admin/events/${eventId}/vehicles/allocation`}>Bàn phân xe</Link></Button>{pending ? <><Button variant="outline" disabled={discard.isPending} onClick={() => discard.mutate(pending.id)}><XCircleIcon />Bỏ preview</Button><Button disabled={commit.isPending} onClick={() => commit.mutate(pending.id)}><CheckCircle2Icon />Commit</Button></> : <Button variant="outline" disabled={!data.items.length || preview.isPending} onClick={() => preview.mutate()}><SparklesIcon />Chạy preview</Button>}</div>} />}
+  return <EntityContainer header={<EntityHeader title="Xe đưa đón" description="Cấu hình xe cho bốn chặng và phân bổ dựa trên chuyến bay đã chốt." newButtonLabel="Thêm xe" onNew={() => setEditing(null)} actions={<div className="flex gap-2"><Button asChild variant="outline"><a href={vehiclesExportUrl(eventId)}><DownloadIcon />Xuất tổng hợp</a></Button><Button asChild variant="outline"><Link href={`/admin/events/${eventId}/vehicles/allocation`}>Bàn phân xe</Link></Button>{pending ? <><Button variant="outline" disabled={discard.isPending} onClick={() => discard.mutate(pending.id)}><XCircleIcon />Bỏ preview</Button><Button disabled={commit.isPending} onClick={() => commit.mutate(pending.id)}><CheckCircle2Icon />Commit</Button></> : <Button variant="outline" disabled={!data.items.length || preview.isPending} onClick={() => preview.mutate()}><SparklesIcon />Chạy preview</Button>}</div>} />}
     stats={<div className="grid gap-3 sm:grid-cols-4"><Metric label="Tổng xe" value={data.total} /><Metric label="Tổng chỗ" value={data.items.reduce((s, x) => s + x.capacity, 0)} /><Metric label="Đã xếp gần nhất" value={latest?.stats.assigned ?? data.items.reduce((s, x) => s + x.assignedCount, 0)} /><Metric label="Chưa xếp" value={latest?.stats.unassigned ?? 0} /></div>}>
     <EntityDataTable columns={columns} data={data.items} emptyView={<EntityEmptyView icon={<BusIcon />} title="Chưa có xe" message="Thêm xe cho từng chặng trước khi chạy preview." onNew={() => setEditing(null)} newLabel="Thêm xe đầu tiên" />} />
     <VehicleDialog eventId={eventId} value={editing} pickupPoints={pickupPoints} open={editing !== undefined} onOpenChange={(open) => !open && setEditing(undefined)} />

@@ -11,17 +11,22 @@ interface ApiErrorBody {
   requestId?: string
 }
 
+export async function apiErrorBody(error: unknown): Promise<ApiErrorBody | null> {
+  if (!(error instanceof HTTPError)) return null
+  try {
+    return (await error.response.clone().json()) as ApiErrorBody
+  } catch {
+    return null
+  }
+}
+
 export async function errorMessage(
   error: unknown,
   fallback = "Đã có lỗi xảy ra.",
 ): Promise<string> {
   if (error instanceof HTTPError) {
-    try {
-      const body = (await error.response.json()) as ApiErrorBody
-      if (body?.error?.message) return body.error.message
-    } catch {
-      // A non-JSON body (a proxy 502, say) has nothing useful to quote.
-    }
+    const body = await apiErrorBody(error)
+    if (body?.error?.message) return body.error.message
     return `${error.response.status} ${error.response.statusText}`.trim()
   }
   if (error instanceof Error && error.message) return error.message

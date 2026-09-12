@@ -5,7 +5,9 @@ import { ErrorBoundary } from "react-error-boundary"
 import { EntityStateView } from "@/components/entity-components"
 import { PageHeader } from "@/components/page-header"
 import { Skeleton } from "@/components/ui/skeleton"
-import { EventOverviewStats, EventStatusControl } from "@/features/events/components"
+import { EventStatusControl } from "@/features/events/components"
+import { DashboardOverview } from "@/features/journey/components/dashboard-overview"
+import { prefetchDashboard } from "@/features/journey/server/prefetch"
 import { prefetchEvent } from "@/features/events/server/prefetch"
 import { prefetchEmployees } from "@/features/employees/server/prefetch"
 import { prefetchPickupPoints } from "@/features/pickup-points/server/prefetch"
@@ -26,6 +28,7 @@ export default async function EventOverviewPage({
     prefetchTeams(eventId),
     prefetchPickupPoints(eventId),
     prefetchEmployees(),
+    prefetchDashboard(eventId),
   ])
 
   // UX only. Reverting is refused by the backend for anyone but a super_admin,
@@ -56,7 +59,7 @@ export default async function EventOverviewPage({
               </div>
             }
           >
-            <EventOverviewStats eventId={eventId} />
+            <DashboardOverview eventId={eventId} />
           </Suspense>
         </ErrorBoundary>
       </HydrationBoundary>

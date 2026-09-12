@@ -42,6 +42,7 @@ export type VehicleAssignmentView = z.infer<typeof vehicleAssignmentSchema>
 export async function listVehicleAssignments(eventId: string, page = 1, pageSize = 25) { return pageSchema(vehicleAssignmentSchema).parse(await (await api.get(`events/${eventId}/vehicles/assignments`, { searchParams: { limit: pageSize, offset: (page - 1) * pageSize } })).json()) }
 export async function manualAssignVehicle(eventId: string, registrationId: string, vehicleId: string) { await api.post(`events/${eventId}/vehicles/assignments/manual`, { json: { registrationIds: [registrationId], vehicleId, reason: "Điều chỉnh thủ công trên bàn phân xe" } }) }
 export async function setVehicleAssignmentLock(eventId: string, assignmentId: string, locked: boolean) { await api.patch(`events/${eventId}/vehicles/assignments/${assignmentId}/lock`, { json: { locked, reason: "Giữ nguyên khi chạy lại phân xe" } }) }
+export const vehiclesExportUrl = (eventId: string) => apiUrl(`events/${eventId}/vehicles/export`)
 
 const hotelSchema = z.object({ id: z.string(), eventId: z.string(), name: z.string(), address: z.string(), createdAt: z.coerce.date(), updatedAt: z.coerce.date() })
 const hotelItemSchema = z.object({ hotel: hotelSchema, roomCount: z.number() })
@@ -52,6 +53,9 @@ export type HotelItem = z.infer<typeof hotelItemSchema>; export type RoomType = 
 export async function listHotels(eventId: string) { return z.object({ items: z.array(hotelItemSchema) }).parse(await (await api.get(`events/${eventId}/hotels`)).json()).items }
 export async function listRoomTypes(eventId: string) { return z.object({ items: z.array(roomTypeSchema) }).parse(await (await api.get(`events/${eventId}/room-types`)).json()).items }
 export async function listRooms(eventId: string) { return z.object({ items: z.array(roomItemSchema) }).parse(await (await api.get(`events/${eventId}/rooms`)).json()).items }
+const roomAssignmentViewSchema = z.object({ assignment: z.object({ id: z.string(), roomId: z.string(), registrationId: z.string(), source: z.enum(["import", "manual", "auto"]), locked: z.boolean() }), room: roomSchema, hotel: hotelSchema, employeeCode: z.string().nullable(), name: z.string(), email: z.string() })
+export type RoomAssignmentView = z.infer<typeof roomAssignmentViewSchema>
+export async function listRoomAssignments(eventId: string) { return z.object({ items: z.array(roomAssignmentViewSchema) }).parse(await (await api.get(`events/${eventId}/room-assignments`)).json()).items }
 export async function createHotel(eventId: string, input: { name: string; address: string }) { await api.post(`events/${eventId}/hotels`, { json: input }) }
 export async function updateHotel(eventId: string, id: string, input: { name: string; address: string }) { await api.patch(`events/${eventId}/hotels/${id}`, { json: input }) }
 export async function deleteHotel(eventId: string, id: string) { await api.delete(`events/${eventId}/hotels/${id}`) }
@@ -63,3 +67,4 @@ export async function updateRoom(eventId: string, id: string, input: { roomTypeI
 export async function deleteRoom(eventId: string, id: string) { await api.delete(`events/${eventId}/rooms/${id}`) }
 export async function importRoomAssignments(eventId: string, file: File) { const body = new FormData(); body.set("file", file); return z.object({ fileName: z.string(), total: z.number() }).parse(await (await api.post(`events/${eventId}/room-assignments/import`, { body })).json()) }
 export const roomAssignmentsExportUrl = (eventId: string) => apiUrl(`events/${eventId}/room-assignments/export`)
+export const accommodationsExportUrl = (eventId: string) => apiUrl(`events/${eventId}/accommodations/export`)
