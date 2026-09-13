@@ -1,10 +1,12 @@
 import { Suspense } from "react"
 import { HydrationBoundary, dehydrate } from "@tanstack/react-query"
 import { ErrorBoundary } from "react-error-boundary"
+import { DownloadIcon } from "lucide-react"
 
 import { EntityStateView } from "@/components/entity-components"
 import { PageHeader } from "@/components/page-header"
 import { Skeleton } from "@/components/ui/skeleton"
+import { Button } from "@/components/ui/button"
 import { EventStatusControl } from "@/features/events/components"
 import { DashboardOverview } from "@/features/journey/components/dashboard-overview"
 import { prefetchDashboard } from "@/features/journey/server/prefetch"
@@ -14,6 +16,7 @@ import { prefetchPickupPoints } from "@/features/pickup-points/server/prefetch"
 import { prefetchTeams } from "@/features/teams/server/prefetch"
 import { getQueryClient } from "@/lib/get-query-client"
 import { requireOrganizer } from "@/lib/auth"
+import { apiUrl } from "@/lib/ky"
 
 export default async function EventOverviewPage({
   params,
@@ -40,6 +43,14 @@ export default async function EventOverviewPage({
       <PageHeader
         title="Tổng quan kỳ"
         description="Trạng thái kỳ quyết định CBNV làm được gì — không phải vai trò của họ."
+        actions={
+          <Button size="sm" variant="outline" asChild>
+            <a href={apiUrl(`events/${eventId}/export`)}>
+              <DownloadIcon />
+              Xuất toàn bộ dữ liệu
+            </a>
+          </Button>
+        }
       />
 
       <HydrationBoundary state={dehydrate(getQueryClient())}>

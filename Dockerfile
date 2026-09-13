@@ -38,7 +38,7 @@ ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
 
 RUN addgroup --system --gid 1001 nodejs && \
-    adduser --system --uid 1001 nextjs
+    adduser --system --uid 1001 -G nodejs nextjs
 
 # `output: "standalone"` in next.config.ts bundles the server and only the
 # modules it reaches, so this stage carries no node_modules of its own.

@@ -39,21 +39,22 @@ export const getSession = cache(async (): Promise<AppSession | null> => {
   const cookie = await forwardedCookie()
   if (!cookie) return null
 
-  try {
-    const response = await fetch(`${TEAMORA_API_URL}${SESSION_PATH}`, {
-      headers: { cookie, accept: "application/json" },
-      cache: "no-store",
-    })
-    if (!response.ok) return null
+  const response = await fetch(`${TEAMORA_API_URL}${SESSION_PATH}`, {
+    headers: { cookie, accept: "application/json" },
+    cache: "no-store",
+    signal: AbortSignal.timeout(10_000),
+  })
 
-    // Better Auth answers 200 with a literal `null` body for an anonymous caller.
-    const body = (await response.json()) as AppSession | null
-    if (!body?.user) return null
-    return body
-  } catch {
-    // An identity service we cannot reach is not an authenticated caller.
-    return null
-  }
+  // An expired/revoked session is anonymous. A network error or a backend 5xx
+  // is a system failure, not a logout: let it reach the route error boundary so
+  // the user sees a retry screen and is not misleadingly sent to /login.
+  if (response.status === 401) return null
+  if (!response.ok) throw new Error(`Session service returned ${response.status}`)
+
+  // Better Auth answers 200 with a literal `null` body for an anonymous caller.
+  const body = (await response.json()) as AppSession | null
+  if (!body?.user) return null
+  return body
 })
 
 export async function getCurrentUser(): Promise<SessionUser | null> {

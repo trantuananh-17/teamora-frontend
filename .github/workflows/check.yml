@@ -65,3 +65,6 @@ jobs:
             echo "::error::NEXT_PUBLIC_* is baked in at build time. Add the value to EnvScript and read it through lib/config.ts instead."
             exit 1
           fi
+
+      - name: Docker Compose is valid
+        run: docker compose config --quiet

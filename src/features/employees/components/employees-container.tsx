@@ -1,11 +1,12 @@
 "use client"
 
 import { useRef, useState } from "react"
-import { UploadIcon } from "lucide-react"
+import { DownloadIcon, UploadIcon } from "lucide-react"
 
 import { EntityContainer, EntityHeader } from "@/components/entity-components"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
+import { apiUrl } from "@/lib/ky"
 import { useImportEmployees, type ImportFailure } from "../hooks/employees.hook"
 
 /**
@@ -25,14 +26,22 @@ export function EmployeesContainer({ children }: { children: React.ReactNode }) 
           title="Cán bộ nhân viên"
           description="Danh sách nhân sự dùng chung mọi kỳ. Tài khoản đăng nhập sinh ra từ đây, không phải từ form đăng ký."
           actions={
-            <Button
-              size="sm"
-              disabled={importEmployees.isPending}
-              onClick={() => inputRef.current?.click()}
-            >
-              <UploadIcon className="size-4" />
-              {importEmployees.isPending ? "Đang import…" : "Import Excel"}
-            </Button>
+            <>
+              <Button size="sm" variant="outline" asChild>
+                <a href={apiUrl("employees/export")}>
+                  <DownloadIcon className="size-4" />
+                  Xuất master data
+                </a>
+              </Button>
+              <Button
+                size="sm"
+                disabled={importEmployees.isPending}
+                onClick={() => inputRef.current?.click()}
+              >
+                <UploadIcon className="size-4" />
+                {importEmployees.isPending ? "Đang import…" : "Import Excel"}
+              </Button>
+            </>
           }
         />
       }

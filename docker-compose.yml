@@ -1,0 +1,34 @@
+# Frontend development stack. The backend may run from source or from its own
+# Compose project. On Docker Desktop, host.docker.internal reaches host port
+# 8080. Native Linux users should expose the backend on 0.0.0.0 explicitly.
+
+name: teamora-frontend
+
+services:
+  web:
+    image: teamora-frontend:local
+    build:
+      context: .
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      HOSTNAME: 0.0.0.0
+      TEAMORA_API_URL: ${TEAMORA_DOCKER_API_URL:-http://host.docker.internal:8080}
+      APP_BASE_URL: http://localhost:${TEAMORA_WEB_PORT:-3000}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    ports:
+      - "127.0.0.1:${TEAMORA_WEB_PORT:-3000}:3000"
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://127.0.0.1:3000/api/health').then((r) => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))",
+        ]
+      interval: 30s
+      timeout: 10s
+      start_period: 40s
+      retries: 3
