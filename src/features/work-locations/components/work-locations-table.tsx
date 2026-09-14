@@ -5,10 +5,7 @@ import type { ColumnDef } from "@tanstack/react-table"
 import { EntityDataTable, EntityEmptyView } from "@/components/entity-components"
 import { ActiveBadge } from "@/components/status-badge"
 import { Switch } from "@/components/ui/switch"
-import {
-  useSetWorkLocationActive,
-  useWorkLocationsSuspense,
-} from "../hooks/work-locations.hook"
+import { useSetWorkLocationActive, useWorkLocationsSuspense } from "../hooks/work-locations.hook"
 import type { WorkLocation } from "../service/work-locations.service"
 
 function ActiveSwitch({ location }: { location: WorkLocation }) {
@@ -24,7 +21,11 @@ function ActiveSwitch({ location }: { location: WorkLocation }) {
 }
 
 const columns: ColumnDef<WorkLocation>[] = [
-  { accessorKey: "name", header: "Địa điểm", cell: ({ row }) => <span className="font-medium">{row.original.name}</span> },
+  {
+    accessorKey: "name",
+    header: "Địa điểm",
+    cell: ({ row }) => <span className="font-medium">{row.original.name}</span>,
+  },
   {
     accessorKey: "active",
     header: "Trạng thái",

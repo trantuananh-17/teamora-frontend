@@ -3,7 +3,12 @@ import type { Metadata } from "next"
 import { HydrationBoundary, dehydrate } from "@tanstack/react-query"
 import { ErrorBoundary } from "react-error-boundary"
 
-import { EventsContainer, EventsError, EventsLoading, EventsTable } from "@/features/events/components"
+import {
+  EventsContainer,
+  EventsError,
+  EventsLoading,
+  EventsTable,
+} from "@/features/events/components"
 import { prefetchEvents } from "@/features/events/server/prefetch"
 import { getQueryClient } from "@/lib/get-query-client"
 import { requireOrganizer } from "@/lib/auth"

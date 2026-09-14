@@ -298,7 +298,11 @@ export function RegistrationForm({
                   render={({ field, fieldState }) => (
                     <Field data-invalid={fieldState.invalid}>
                       <FieldLabel>Bộ phận/Team</FieldLabel>
-                      <Select disabled={!canEdit} value={field.value} onValueChange={field.onChange}>
+                      <Select
+                        disabled={!canEdit}
+                        value={field.value}
+                        onValueChange={field.onChange}
+                      >
                         <SelectTrigger aria-invalid={fieldState.invalid}>
                           <SelectValue placeholder="Chọn bộ phận" />
                         </SelectTrigger>
@@ -516,8 +520,15 @@ export function RegistrationForm({
         </CardHeader>
         <CardFooter className="justify-end">
           {canEdit ? (
-            <Button type="submit" size="lg" className="min-h-11 w-full sm:w-auto" disabled={mutation.isPending}>
-              {mutation.isPending && <Loader2Icon data-icon="inline-start" className="animate-spin" />}
+            <Button
+              type="submit"
+              size="lg"
+              className="min-h-11 w-full sm:w-auto"
+              disabled={mutation.isPending}
+            >
+              {mutation.isPending && (
+                <Loader2Icon data-icon="inline-start" className="animate-spin" />
+              )}
               {registration ? "Cập nhật đăng ký" : "Gửi đăng ký"}
             </Button>
           ) : (

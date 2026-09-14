@@ -6,13 +6,7 @@ import { redirect } from "next/navigation"
 
 import { EventStatusBadge } from "@/components/status-badge"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import {
-  Empty,
-  EmptyDescription,
-  EmptyHeader,
-  EmptyMedia,
-  EmptyTitle,
-} from "@/components/ui/empty"
+import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@/components/ui/empty"
 import { getMyEmployeeProfile } from "@/features/employees/service/employees.service"
 import { getCurrentEvent } from "@/features/events/service/events.service"
 import { getQueryClient } from "@/lib/get-query-client"
@@ -39,11 +33,13 @@ export default async function RegisterPage() {
         <CardContent>
           <Empty>
             <EmptyHeader>
-              <EmptyMedia variant="icon"><CalendarDaysIcon /></EmptyMedia>
+              <EmptyMedia variant="icon">
+                <CalendarDaysIcon />
+              </EmptyMedia>
               <EmptyTitle>Chưa có kỳ Team Building hiện hành</EmptyTitle>
               <EmptyDescription>
-                Ban Tổ chức sẽ thông báo khi kỳ mới mở đăng ký. Bạn không cần thực hiện thao tác
-                nào lúc này.
+                Ban Tổ chức sẽ thông báo khi kỳ mới mở đăng ký. Bạn không cần thực hiện thao tác nào
+                lúc này.
               </EmptyDescription>
             </EmptyHeader>
           </Empty>
@@ -110,7 +106,9 @@ export default async function RegisterPage() {
               </span>
               <div className="flex min-w-0 flex-col gap-1">
                 <span className="text-sm font-medium">Hành trình liền mạch</span>
-                <span className="text-xs text-muted-foreground">BTC dùng dữ liệu này để phân bổ</span>
+                <span className="text-xs text-muted-foreground">
+                  BTC dùng dữ liệu này để phân bổ
+                </span>
               </div>
             </div>
           </CardContent>

@@ -5,7 +5,10 @@ import { prefetchFlightAllocation } from "@/features/flights/server/prefetch"
 import { requireOrganizer } from "@/lib/auth"
 import { getQueryClient } from "@/lib/get-query-client"
 
-export default async function FlightAllocationPage({ params, searchParams }: {
+export default async function FlightAllocationPage({
+  params,
+  searchParams,
+}: {
   params: Promise<{ eventId: string }>
   searchParams: Promise<Record<string, string | string[] | undefined>>
 }) {
@@ -21,5 +24,9 @@ export default async function FlightAllocationPage({ params, searchParams }: {
     pageSize: [10, 25, 50, 100].includes(pageSize) ? pageSize : 25,
   }
   await prefetchFlightAllocation(eventId, pagination)
-  return <HydrationBoundary state={dehydrate(getQueryClient())}><AllocationWorkbench eventId={eventId} pagination={pagination} /></HydrationBoundary>
+  return (
+    <HydrationBoundary state={dehydrate(getQueryClient())}>
+      <AllocationWorkbench eventId={eventId} pagination={pagination} />
+    </HydrationBoundary>
+  )
 }

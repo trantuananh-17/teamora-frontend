@@ -5,13 +5,7 @@ import Link from "next/link"
 import { useSearchParams } from "next/navigation"
 
 import { Button } from "@/components/ui/button"
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field"
 import { useLogin } from "../hooks/auth.hook"
@@ -32,7 +26,9 @@ export function LoginForm() {
   return (
     <Card>
       <CardHeader className="gap-2">
-        <CardTitle className="text-2xl font-semibold tracking-tight">Chào mừng bạn trở lại</CardTitle>
+        <CardTitle className="text-2xl font-semibold tracking-tight">
+          Chào mừng bạn trở lại
+        </CardTitle>
         <CardDescription>
           Đăng nhập bằng email công ty để xem đăng ký và hành trình của bạn.
         </CardDescription>

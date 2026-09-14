@@ -34,9 +34,13 @@ export const flightSchema = z.object({
 
 export type Flight = z.infer<typeof flightSchema>
 
-const pageSchema = <T extends z.ZodType>(item: T) => z.object({
-  items: z.array(item), total: z.number(), limit: z.number(), offset: z.number(),
-})
+const pageSchema = <T extends z.ZodType>(item: T) =>
+  z.object({
+    items: z.array(item),
+    total: z.number(),
+    limit: z.number(),
+    offset: z.number(),
+  })
 
 export interface FlightFilters {
   search?: string
@@ -93,7 +97,10 @@ export async function deleteFlight(eventId: string, flightId: string) {
 }
 
 const importResultSchema = z.object({
-  fileName: z.string(), total: z.number(), created: z.number(), updated: z.number(),
+  fileName: z.string(),
+  total: z.number(),
+  created: z.number(),
+  updated: z.number(),
 })
 
 export async function importFlights(eventId: string, file: File) {
@@ -144,33 +151,50 @@ export async function listFlightAssignments(
 }
 
 const allocationStatsSchema = z.object({
-  assigned: z.number(), unassigned: z.number(), remainingSlots: z.number(),
-  teamsSplit: z.number(), shiftUnmet: z.number(),
+  assigned: z.number(),
+  unassigned: z.number(),
+  remainingSlots: z.number(),
+  teamsSplit: z.number(),
+  shiftUnmet: z.number(),
 })
 
 const allocationPlanSchema = z.object({
-  assignments: z.array(z.object({
-    registrationId: z.string(), flightId: z.string(),
-    direction: z.enum(flightDirections), flags: z.array(z.enum(allocationFlags)),
-  })),
-  unassigned: z.array(z.object({
-    registrationId: z.string(), direction: z.enum(flightDirections),
-    reason: z.enum(["shift_locked_unmet", "unassigned"]),
-  })),
+  assignments: z.array(
+    z.object({
+      registrationId: z.string(),
+      flightId: z.string(),
+      direction: z.enum(flightDirections),
+      flags: z.array(z.enum(allocationFlags)),
+    }),
+  ),
+  unassigned: z.array(
+    z.object({
+      registrationId: z.string(),
+      direction: z.enum(flightDirections),
+      reason: z.enum(["shift_locked_unmet", "unassigned"]),
+    }),
+  ),
 })
 
 export const allocationRunSchema = z.object({
-  id: z.string(), eventId: z.string(), type: z.literal("flight"),
+  id: z.string(),
+  eventId: z.string(),
+  type: z.literal("flight"),
   status: z.enum(["preview", "committed", "discarded"]),
-  params: z.record(z.string(), z.number()), stats: allocationStatsSchema,
-  plan: allocationPlanSchema, createdBy: z.string(), createdAt: z.coerce.date(),
+  params: z.record(z.string(), z.number()),
+  stats: allocationStatsSchema,
+  plan: allocationPlanSchema,
+  createdBy: z.string(),
+  createdAt: z.coerce.date(),
   committedAt: z.coerce.date().nullable(),
 })
 
 export type AllocationRun = z.infer<typeof allocationRunSchema>
 
 export async function listAllocationRuns(eventId: string) {
-  const response = await api.get(`events/${eventId}/allocations`, { searchParams: { type: "flight" } })
+  const response = await api.get(`events/${eventId}/allocations`, {
+    searchParams: { type: "flight" },
+  })
   return z.object({ items: z.array(allocationRunSchema) }).parse(await response.json()).items
 }
 
@@ -191,16 +215,30 @@ export async function discardAllocation(eventId: string, runId: string) {
 
 const manualResultSchema = z.object({ updated: z.number(), warnings: z.array(z.string()) })
 
-export async function manualAssignFlight(eventId: string, input: {
-  registrationIds?: string[]; teamId?: string; flightId: string; reason: string
-}) {
+export async function manualAssignFlight(
+  eventId: string,
+  input: {
+    registrationIds?: string[]
+    teamId?: string
+    flightId: string
+    reason: string
+  },
+) {
   const response = await api.post(`events/${eventId}/flights/assignments/manual`, { json: input })
   return manualResultSchema.parse(await response.json())
 }
 
-export async function setAssignmentLock(eventId: string, assignmentId: string, locked: boolean, reason: string) {
+export async function setAssignmentLock(
+  eventId: string,
+  assignmentId: string,
+  locked: boolean,
+  reason: string,
+) {
   const response = await api.patch(`events/${eventId}/flights/assignments/${assignmentId}/lock`, {
     json: { locked, reason },
   })
-  return z.object({ id: z.string(), locked: z.boolean() }).passthrough().parse(await response.json())
+  return z
+    .object({ id: z.string(), locked: z.boolean() })
+    .passthrough()
+    .parse(await response.json())
 }

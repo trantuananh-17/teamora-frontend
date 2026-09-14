@@ -1,7 +1,11 @@
 import { Suspense } from "react"
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query"
 
-import { EntityContainer, EntityTableSkeleton, EntityUrlPagination } from "@/components/entity-components"
+import {
+  EntityContainer,
+  EntityTableSkeleton,
+  EntityUrlPagination,
+} from "@/components/entity-components"
 import { PageHeader } from "@/components/page-header"
 import { getTeams } from "@/features/registration/service/master-data.service"
 import { RegistrationStatsCards } from "@/features/registration/components/registration-stats"
@@ -60,7 +64,9 @@ export default async function RegistrationsAdminPage({
         </HydrationBoundary>
       }
       search={<RegistrationToolbar eventId={eventId} teams={teams} params={filters} />}
-      pagination={<EntityUrlPagination total={registrations.total} page={page} pageSize={pageSize} />}
+      pagination={
+        <EntityUrlPagination total={registrations.total} page={page} pageSize={pageSize} />
+      }
     >
       <HydrationBoundary state={dehydrate(getQueryClient())}>
         <Suspense fallback={<EntityTableSkeleton columns={6} />}>

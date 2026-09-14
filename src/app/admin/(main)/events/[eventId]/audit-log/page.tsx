@@ -3,16 +3,31 @@ import { dehydrate, HydrationBoundary } from "@tanstack/react-query"
 import { ErrorBoundary } from "react-error-boundary"
 
 import { EntityUrlPagination } from "@/components/entity-components"
-import { AuditLogsContainer, AuditLogsError, AuditLogsLoading, AuditLogsTable, AuditLogsToolbar } from "@/features/audit-logs/components"
+import {
+  AuditLogsContainer,
+  AuditLogsError,
+  AuditLogsLoading,
+  AuditLogsTable,
+  AuditLogsToolbar,
+} from "@/features/audit-logs/components"
 import { auditLogsParamsLoader } from "@/features/audit-logs/server/params-loader"
 import { prefetchAuditLogs } from "@/features/audit-logs/server/prefetch"
-import { auditLogsExportUrl, type AuditLogsQuery } from "@/features/audit-logs/service/audit-logs.service"
+import {
+  auditLogsExportUrl,
+  type AuditLogsQuery,
+} from "@/features/audit-logs/service/audit-logs.service"
 import { requireOrganizer } from "@/lib/auth"
 import { getQueryClient } from "@/lib/get-query-client"
 
 type SearchParams = Record<string, string | string[] | undefined>
 
-export default async function AuditLogsPage({ params, searchParams }: { params: Promise<{ eventId: string }>; searchParams: Promise<SearchParams> }) {
+export default async function AuditLogsPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ eventId: string }>
+  searchParams: Promise<SearchParams>
+}) {
   await requireOrganizer()
   const [{ eventId }, loaded] = await Promise.all([params, auditLogsParamsLoader(searchParams)])
   const page = Number.isInteger(loaded.page) && loaded.page > 0 ? loaded.page : 1

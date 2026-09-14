@@ -4,10 +4,7 @@ import { HydrationBoundary, dehydrate } from "@tanstack/react-query"
 import { ErrorBoundary } from "react-error-boundary"
 
 import { EntityStateView, EntityTableSkeleton } from "@/components/entity-components"
-import {
-  WorkLocationsContainer,
-  WorkLocationsTable,
-} from "@/features/work-locations/components"
+import { WorkLocationsContainer, WorkLocationsTable } from "@/features/work-locations/components"
 import { prefetchWorkLocations } from "@/features/work-locations/server/prefetch"
 import { getQueryClient } from "@/lib/get-query-client"
 import { requireOrganizer } from "@/lib/auth"
@@ -21,9 +18,7 @@ export default async function WorkLocationsPage() {
   return (
     <WorkLocationsContainer>
       <HydrationBoundary state={dehydrate(getQueryClient())}>
-        <ErrorBoundary
-          fallback={<EntityStateView title="Không tải được danh sách địa điểm" />}
-        >
+        <ErrorBoundary fallback={<EntityStateView title="Không tải được danh sách địa điểm" />}>
           <Suspense fallback={<EntityTableSkeleton columns={3} rows={4} />}>
             <WorkLocationsTable />
           </Suspense>

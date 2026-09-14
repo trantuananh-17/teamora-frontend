@@ -2,13 +2,20 @@ import { dehydrate, HydrationBoundary } from "@tanstack/react-query"
 
 import { FlightsManager } from "@/features/flights/components"
 import { prefetchFlights } from "@/features/flights/server/prefetch"
-import type { FlightDirection, FlightFilters, FlightShift } from "@/features/flights/service/flights.service"
+import type {
+  FlightDirection,
+  FlightFilters,
+  FlightShift,
+} from "@/features/flights/service/flights.service"
 import { requireOrganizer } from "@/lib/auth"
 import { getQueryClient } from "@/lib/get-query-client"
 
 type SearchParams = Record<string, string | string[] | undefined>
 
-export default async function FlightsPage({ params, searchParams }: {
+export default async function FlightsPage({
+  params,
+  searchParams,
+}: {
   params: Promise<{ eventId: string }>
   searchParams: Promise<SearchParams>
 }) {
@@ -22,7 +29,11 @@ export default async function FlightsPage({ params, searchParams }: {
   }
   const pagination = paginationFrom(raw)
   await prefetchFlights(eventId, filters, pagination)
-  return <HydrationBoundary state={dehydrate(getQueryClient())}><FlightsManager eventId={eventId} filters={filters} pagination={pagination} /></HydrationBoundary>
+  return (
+    <HydrationBoundary state={dehydrate(getQueryClient())}>
+      <FlightsManager eventId={eventId} filters={filters} pagination={pagination} />
+    </HydrationBoundary>
+  )
 }
 
 function single(value: string | string[] | undefined) {

@@ -55,7 +55,9 @@ export function EmployeesContainer({ children }: { children: React.ReactNode }) 
                   {failure.errors.map((error, index) => (
                     <li key={`${error.row}-${index}`} className="text-sm">
                       <span className="font-medium">Dòng {error.row}</span>
-                      {error.column && <span className="text-muted-foreground"> · {error.column}</span>}
+                      {error.column && (
+                        <span className="text-muted-foreground"> · {error.column}</span>
+                      )}
                       {" — "}
                       {error.message}
                     </li>

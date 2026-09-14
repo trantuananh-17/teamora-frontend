@@ -14,11 +14,7 @@ import {
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import {
-  useAdvanceEventStatus,
-  useEventSuspense,
-  useRevertEventStatus,
-} from "../hooks/events.hook"
+import { useAdvanceEventStatus, useEventSuspense, useRevertEventStatus } from "../hooks/events.hook"
 import { eventStatuses, type EventStatus } from "../service/events.service"
 
 /**

@@ -12,7 +12,5 @@ export function EnvScript() {
     APP_BASE_URL: process.env.APP_BASE_URL ?? "",
   }
 
-  return (
-    <script dangerouslySetInnerHTML={{ __html: `window.__env=${JSON.stringify(env)}` }} />
-  )
+  return <script dangerouslySetInnerHTML={{ __html: `window.__env=${JSON.stringify(env)}` }} />
 }

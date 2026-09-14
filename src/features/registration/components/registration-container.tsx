@@ -150,7 +150,9 @@ export function RegistrationContainer({
                 ) : (
                   <CircleDashedIcon className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
                 )}
-                <span>{registration ? "Đăng ký đã được ghi nhận" : "Hoàn tất biểu mẫu đăng ký"}</span>
+                <span>
+                  {registration ? "Đăng ký đã được ghi nhận" : "Hoàn tất biểu mẫu đăng ký"}
+                </span>
               </li>
               <li className="flex items-start gap-2 text-muted-foreground">
                 <PlaneTakeoffIcon className="mt-0.5 size-4 shrink-0" />

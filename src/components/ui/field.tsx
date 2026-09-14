@@ -7,7 +7,9 @@ import { Label } from "@/components/ui/label"
 import { cn } from "@/lib/utils"
 
 function FieldSet({ className, ...props }: React.ComponentProps<"fieldset">) {
-  return <fieldset data-slot="field-set" className={cn("flex flex-col gap-4", className)} {...props} />
+  return (
+    <fieldset data-slot="field-set" className={cn("flex flex-col gap-4", className)} {...props} />
+  )
 }
 
 function FieldLegend({
@@ -119,7 +121,12 @@ function FieldError({
 
   if (!content) return null
   return (
-    <div role="alert" data-slot="field-error" className={cn("text-sm text-destructive", className)} {...props}>
+    <div
+      role="alert"
+      data-slot="field-error"
+      className={cn("text-sm text-destructive", className)}
+      {...props}
+    >
       {content}
     </div>
   )

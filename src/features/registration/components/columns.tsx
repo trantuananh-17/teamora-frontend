@@ -12,9 +12,7 @@ export const columns: ColumnDef<Registration>[] = [
   {
     accessorKey: "user.name",
     header: "Họ tên",
-    cell: ({ row }) => (
-      <div className="font-medium">{row.original.user.name}</div>
-    ),
+    cell: ({ row }) => <div className="font-medium">{row.original.user.name}</div>,
   },
   {
     accessorKey: "user.email",
@@ -50,7 +48,8 @@ export const columns: ColumnDef<Registration>[] = [
     header: "Ca bay",
     cell: ({ row }) => {
       if (!row.original.participating) return <span className="text-muted-foreground">—</span>
-      if (!row.original.shiftPreference) return <span className="text-muted-foreground">Chưa chọn</span>
+      if (!row.original.shiftPreference)
+        return <span className="text-muted-foreground">Chưa chọn</span>
       return (
         <Badge variant={row.original.shiftLocked ? "default" : "secondary"}>
           {row.original.shiftPreference === "shift_1" ? "Ca 1" : "Ca 2"}

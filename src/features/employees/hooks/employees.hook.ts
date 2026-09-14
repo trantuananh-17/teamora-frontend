@@ -1,10 +1,9 @@
 "use client"
 
-import { HTTPError } from "ky"
 import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-query"
 import { toast } from "sonner"
 
-import { errorMessage } from "@/lib/api-error"
+import { apiErrorBody, errorMessage } from "@/lib/api-error"
 import { employeesKeys, employeesListOptions } from "../options/employees.options"
 import {
   importEmployees,
@@ -28,20 +27,15 @@ export interface ImportFailure {
  * the screen and rendered there; only the headline goes in the toast.
  */
 async function readImportFailure(error: unknown): Promise<ImportFailure | null> {
-  if (!(error instanceof HTTPError)) return null
-  try {
-    const body = (await error.response.json()) as {
-      error?: { message?: string; details?: unknown }
-    }
-    const parsed = importErrorDetailsSchema.safeParse(body?.error?.details)
-    if (!parsed.success) return null
-    return {
-      message: body.error?.message ?? "File có lỗi.",
-      totalErrors: parsed.data.totalErrors,
-      errors: parsed.data.errors,
-    }
-  } catch {
-    return null
+  // `apiErrorBody` clones before reading — a consumed body would leave
+  // `errorMessage` nothing to quote for a non-row error such as a missing column.
+  const body = await apiErrorBody(error)
+  const parsed = importErrorDetailsSchema.safeParse(body?.error?.details)
+  if (!parsed.success) return null
+  return {
+    message: body?.error?.message ?? "File có lỗi.",
+    totalErrors: parsed.data.totalErrors,
+    errors: parsed.data.errors,
   }
 }
 

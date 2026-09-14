@@ -26,7 +26,9 @@ export function notificationColumns(eventId: string): ColumnDef<Notification>[] 
       header: "Người nhận",
       cell: ({ row }) => (
         <div className="flex min-w-0 flex-col gap-0.5">
-          <span className="truncate font-medium">{row.original.recipient?.name ?? "Không xác định"}</span>
+          <span className="truncate font-medium">
+            {row.original.recipient?.name ?? "Không xác định"}
+          </span>
           <span className="truncate text-xs text-muted-foreground">
             {row.original.recipient?.email ?? "Không có email"}
           </span>

@@ -61,9 +61,7 @@ export function EventStatusBadge({ status }: { status: string }) {
 
 /** Master data rows that can be switched off instead of deleted. */
 export function ActiveBadge({ active }: { active: boolean }) {
-  return (
-    <Badge tone={active ? "success" : "muted"}>{active ? "Đang dùng" : "Đã tắt"}</Badge>
-  )
+  return <Badge tone={active ? "success" : "muted"}>{active ? "Đang dùng" : "Đã tắt"}</Badge>
 }
 
 const NOTIFICATION_STATUS: Record<string, { label: string; tone: Tone }> = {
@@ -86,10 +84,26 @@ export function NotificationStatusBadge({ status }: { status: string }) {
  */
 const ALLOCATION_FLAG: Record<string, { label: string; reason: string; tone: Tone }> = {
   team_split: { label: "Team bị tách", reason: "Team này không cùng một chuyến.", tone: "warning" },
-  shift_unmet: { label: "Lệch ca đăng ký", reason: "Không xếp được đúng ca đã đăng ký.", tone: "warning" },
-  shift_locked_unmet: { label: "Không xếp được ca bắt buộc", reason: "Ca bắt buộc theo công việc chưa có chỗ.", tone: "destructive" },
-  unassigned: { label: "Chưa xếp được", reason: "Hết chỗ ở mọi chuyến phù hợp.", tone: "destructive" },
-  over_capacity: { label: "Vượt sức chứa", reason: "Điều chỉnh tay đã vượt sức chứa (§5.5).", tone: "destructive" },
+  shift_unmet: {
+    label: "Lệch ca đăng ký",
+    reason: "Không xếp được đúng ca đã đăng ký.",
+    tone: "warning",
+  },
+  shift_locked_unmet: {
+    label: "Không xếp được ca bắt buộc",
+    reason: "Ca bắt buộc theo công việc chưa có chỗ.",
+    tone: "destructive",
+  },
+  unassigned: {
+    label: "Chưa xếp được",
+    reason: "Hết chỗ ở mọi chuyến phù hợp.",
+    tone: "destructive",
+  },
+  over_capacity: {
+    label: "Vượt sức chứa",
+    reason: "Điều chỉnh tay đã vượt sức chứa (§5.5).",
+    tone: "destructive",
+  },
 }
 
 export function AllocationFlagBadge({ flag }: { flag: string }) {
@@ -98,7 +112,9 @@ export function AllocationFlagBadge({ flag }: { flag: string }) {
   return (
     <Tooltip>
       <TooltipTrigger asChild>
-        <span><Badge tone={mapped.tone}>{mapped.label}</Badge></span>
+        <span>
+          <Badge tone={mapped.tone}>{mapped.label}</Badge>
+        </span>
       </TooltipTrigger>
       <TooltipContent>{mapped.reason}</TooltipContent>
     </Tooltip>

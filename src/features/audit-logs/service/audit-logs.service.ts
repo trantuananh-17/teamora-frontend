@@ -43,11 +43,13 @@ export async function getAuditLogs(eventId: string, query: AuditLogsQuery) {
 }
 
 export function auditLogsExportUrl(eventId: string, query: AuditLogsQuery) {
-  const params = new URLSearchParams(queryParams({
-    search: query.search,
-    entity: query.entity,
-    action: query.action,
-  }))
+  const params = new URLSearchParams(
+    queryParams({
+      search: query.search,
+      entity: query.entity,
+      action: query.action,
+    }),
+  )
   const base = apiUrl(`events/${eventId}/audit-logs/export`)
   return params.size ? `${base}?${params}` : base
 }
@@ -55,7 +57,9 @@ export function auditLogsExportUrl(eventId: string, query: AuditLogsQuery) {
 function queryParams(query: AuditLogsQuery): Record<string, string> {
   return Object.fromEntries(
     Object.entries(query)
-      .filter((entry): entry is [string, string | number] => entry[1] !== undefined && entry[1] !== "")
+      .filter(
+        (entry): entry is [string, string | number] => entry[1] !== undefined && entry[1] !== "",
+      )
       .map(([key, value]) => [key, String(value)]),
   )
 }

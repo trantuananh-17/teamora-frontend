@@ -1,10 +1,6 @@
 import { cache } from "react"
 
-import {
-  QueryClient,
-  defaultShouldDehydrateQuery,
-  environmentManager,
-} from "@tanstack/react-query"
+import { QueryClient, defaultShouldDehydrateQuery, environmentManager } from "@tanstack/react-query"
 
 function makeQueryClient() {
   return new QueryClient({

@@ -201,7 +201,9 @@ export function EntityPagination({
           <SelectContent>
             <SelectGroup>
               {[10, 25, 50, 100].map((size) => (
-                <SelectItem key={size} value={String(size)}>{size}</SelectItem>
+                <SelectItem key={size} value={String(size)}>
+                  {size}
+                </SelectItem>
               ))}
             </SelectGroup>
           </SelectContent>

@@ -5,10 +5,7 @@ import { toast } from "sonner"
 
 import { errorMessage } from "@/lib/api-error"
 import { notificationsKeys, notificationsListOptions } from "../options/notifications.options"
-import {
-  retryNotification,
-  type NotificationsQuery,
-} from "../service/notifications.service"
+import { retryNotification, type NotificationsQuery } from "../service/notifications.service"
 
 export function useNotificationsSuspense(eventId: string, query: NotificationsQuery) {
   return useSuspenseQuery(notificationsListOptions(eventId, query))

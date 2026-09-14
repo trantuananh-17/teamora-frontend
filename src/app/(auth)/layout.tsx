@@ -1,4 +1,10 @@
-import { BedDoubleIcon, BusFrontIcon, MapPinnedIcon, PlaneTakeoffIcon, RouteIcon } from "lucide-react"
+import {
+  BedDoubleIcon,
+  BusFrontIcon,
+  MapPinnedIcon,
+  PlaneTakeoffIcon,
+  RouteIcon,
+} from "lucide-react"
 
 /** The signed-out shell: public brand surface on the left, secure entry on the right. */
 export default function AuthLayout({ children }: { children: React.ReactNode }) {

@@ -19,13 +19,20 @@ export function AuditLogDetails({ entry }: { entry: AuditLog }) {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <Button type="button" size="icon-sm" variant="ghost" aria-label="Xem chi tiết thay đổi" onClick={() => setOpen(true)}>
+      <Button
+        type="button"
+        size="icon-sm"
+        variant="ghost"
+        aria-label="Xem chi tiết thay đổi"
+        onClick={() => setOpen(true)}
+      >
         <EyeIcon />
       </Button>
       <DialogContent className="sm:max-w-3xl">
         <DialogHeader>
           <DialogTitle>
-            {AUDIT_ACTION_LABELS[entry.action] ?? entry.action} — {AUDIT_ENTITY_LABELS[entry.entity] ?? entry.entity}
+            {AUDIT_ACTION_LABELS[entry.action] ?? entry.action} —{" "}
+            {AUDIT_ENTITY_LABELS[entry.entity] ?? entry.entity}
           </DialogTitle>
           <DialogDescription>
             {entry.actorName ?? "Hệ thống"} • {entry.createdAt.toLocaleString("vi-VN")}
@@ -42,7 +49,9 @@ export function AuditLogDetails({ entry }: { entry: AuditLog }) {
             </div>
           )}
           <div className="flex flex-col gap-1 text-xs text-muted-foreground sm:col-span-2">
-            <span>Entity ID: <span className="font-mono text-foreground">{entry.entityId}</span></span>
+            <span>
+              Entity ID: <span className="font-mono text-foreground">{entry.entityId}</span>
+            </span>
             {entry.actorEmail && <span>Actor: {entry.actorEmail}</span>}
           </div>
         </div>
@@ -56,7 +65,9 @@ function Snapshot({ title, value }: { title: string; value: unknown }) {
     <div className="flex min-w-0 flex-col gap-2">
       <span className="text-sm font-medium">{title}</span>
       <pre className="min-h-28 overflow-auto rounded-lg border bg-muted/30 p-3 text-xs whitespace-pre-wrap break-all">
-        {value === null || value === undefined ? "Không có dữ liệu" : JSON.stringify(value, null, 2)}
+        {value === null || value === undefined
+          ? "Không có dữ liệu"
+          : JSON.stringify(value, null, 2)}
       </pre>
     </div>
   )

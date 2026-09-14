@@ -8,9 +8,10 @@
  */
 
 /** Backend base URL. Server-side only — the browser talks to this app's proxy. */
-export const TEAMORA_API_URL = (
-  process.env.TEAMORA_API_URL || "http://localhost:8080"
-).replace(/\/$/, "")
+export const TEAMORA_API_URL = (process.env.TEAMORA_API_URL || "http://localhost:8080").replace(
+  /\/$/,
+  "",
+)
 
 /**
  * The caller's own credential, replayed upstream.

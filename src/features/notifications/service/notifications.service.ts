@@ -34,10 +34,7 @@ export interface NotificationsQuery {
   offset?: number
 }
 
-export async function getNotifications(
-  eventId: string,
-  query: NotificationsQuery,
-) {
+export async function getNotifications(eventId: string, query: NotificationsQuery) {
   const response = await api.get(`events/${eventId}/notifications`, {
     searchParams: {
       ...(query.status ? { status: query.status } : {}),

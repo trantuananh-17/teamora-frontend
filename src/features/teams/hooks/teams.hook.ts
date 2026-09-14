@@ -17,7 +17,9 @@ export function useCreateTeam(eventId: string, onCreated?: () => void) {
     mutationFn: (input: CreateTeamInput) => createTeam(eventId, input),
     onSuccess: (team) => {
       toast.success("Đã thêm Team", {
-        description: team.eventId ? `${team.name} — chỉ trong kỳ này` : `${team.name} — dùng chung mọi kỳ`,
+        description: team.eventId
+          ? `${team.name} — chỉ trong kỳ này`
+          : `${team.name} — dùng chung mọi kỳ`,
       })
       queryClient.invalidateQueries({ queryKey: teamsKeys.all() })
       onCreated?.()

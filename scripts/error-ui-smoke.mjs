@@ -37,7 +37,11 @@ async function navigate(url, settle = 1_500) {
 }
 
 async function evaluate(expression) {
-  const result = await send("Runtime.evaluate", { expression, awaitPromise: true, returnByValue: true })
+  const result = await send("Runtime.evaluate", {
+    expression,
+    awaitPromise: true,
+    returnByValue: true,
+  })
   if (result.exceptionDetails) throw new Error(result.exceptionDetails.text)
   return result.result.value
 }
@@ -51,17 +55,24 @@ try {
   await send("Runtime.enable")
   await navigate("http://localhost:3000/login")
 
-  const login = await evaluate(`fetch('/api/v1/auth/sign-in/email',{method:'POST',headers:{'content-type':'application/json'},credentials:'include',body:JSON.stringify({email:'btc@teamora.local',password:'Teamora!2026'})}).then(response=>response.status)`)
+  const login = await evaluate(
+    `fetch('/api/v1/auth/sign-in/email',{method:'POST',headers:{'content-type':'application/json'},credentials:'include',body:JSON.stringify({email:'btc@teamora.local',password:'Teamora!2026'})}).then(response=>response.status)`,
+  )
   assert(login === 200, `Đăng nhập BTC thất bại: ${login}`)
   await navigate(`http://localhost:3000/admin/events/${eventId}`)
-  assert((await evaluate("document.body.innerText")).includes("Tổng quan kỳ"), "Trang quản trị không tải được trước khi mô phỏng lỗi.")
+  assert(
+    (await evaluate("document.body.innerText")).includes("Tổng quan kỳ"),
+    "Trang quản trị không tải được trước khi mô phỏng lỗi.",
+  )
 
   // The runner stops the backend after seeing this marker.
   console.log("AUTH_READY")
   const offlineDeadline = Date.now() + 30_000
   let backendStatus = 200
   while (Date.now() < offlineDeadline) {
-    backendStatus = await evaluate("fetch('/api/v1/auth/get-session',{credentials:'include'}).then(response=>response.status).catch(()=>599)")
+    backendStatus = await evaluate(
+      "fetch('/api/v1/auth/get-session',{credentials:'include'}).then(response=>response.status).catch(()=>599)",
+    )
     if (backendStatus >= 500) break
     await wait(250)
   }
@@ -69,12 +80,33 @@ try {
 
   await navigate(`http://localhost:3000/admin/events/${eventId}/audit-log`, 3_000)
   const text = await evaluate("document.body.innerText")
-  assert(text.includes("Không tải được dữ liệu"), `Không thấy UI lỗi thân thiện: ${text.slice(0, 1_000)}`)
-  assert(text.includes("Thử lại") && text.includes("Về trang chính"), "UI lỗi thiếu hành động phục hồi.")
-  assert(!text.includes("HTTPError") && !text.includes("Request failed") && !text.includes("node_modules"), "UI làm lộ lỗi kỹ thuật hoặc stack trace.")
+  assert(
+    text.includes("Không tải được dữ liệu"),
+    `Không thấy UI lỗi thân thiện: ${text.slice(0, 1_000)}`,
+  )
+  assert(
+    text.includes("Thử lại") && text.includes("Về trang chính"),
+    "UI lỗi thiếu hành động phục hồi.",
+  )
+  assert(
+    !text.includes("HTTPError") &&
+      !text.includes("Request failed") &&
+      !text.includes("node_modules"),
+    "UI làm lộ lỗi kỹ thuật hoặc stack trace.",
+  )
 
-  console.log(JSON.stringify({ apiOfflineFallback: "ok", stackTraceHidden: "ok", recoveryActions: "ok" }, null, 2))
+  console.log(
+    JSON.stringify(
+      { apiOfflineFallback: "ok", stackTraceHidden: "ok", recoveryActions: "ok" },
+      null,
+      2,
+    ),
+  )
 } finally {
-  try { await send("Browser.close") } catch { /* Browser may already be closing. */ }
+  try {
+    await send("Browser.close")
+  } catch {
+    /* Browser may already be closing. */
+  }
   socket.close()
 }

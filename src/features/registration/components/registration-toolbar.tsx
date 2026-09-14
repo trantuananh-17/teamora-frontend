@@ -58,11 +58,17 @@ export function RegistrationToolbar({
           className="col-span-2 md:col-span-1"
         />
         <Select value={params.teamId ?? "all"} onValueChange={(value) => setParam("teamId", value)}>
-          <SelectTrigger className="w-full"><SelectValue placeholder="Tất cả Team" /></SelectTrigger>
+          <SelectTrigger className="w-full">
+            <SelectValue placeholder="Tất cả Team" />
+          </SelectTrigger>
           <SelectContent>
             <SelectGroup>
               <SelectItem value="all">Tất cả Team</SelectItem>
-              {teams.map((team) => <SelectItem key={team.id} value={team.id}>{team.name}</SelectItem>)}
+              {teams.map((team) => (
+                <SelectItem key={team.id} value={team.id}>
+                  {team.name}
+                </SelectItem>
+              ))}
             </SelectGroup>
           </SelectContent>
         </Select>
@@ -70,7 +76,9 @@ export function RegistrationToolbar({
           value={params.participating === undefined ? "all" : String(params.participating)}
           onValueChange={(value) => setParam("participating", value)}
         >
-          <SelectTrigger className="w-full"><SelectValue placeholder="Trạng thái tham gia" /></SelectTrigger>
+          <SelectTrigger className="w-full">
+            <SelectValue placeholder="Trạng thái tham gia" />
+          </SelectTrigger>
           <SelectContent>
             <SelectGroup>
               <SelectItem value="all">Tất cả phản hồi</SelectItem>
@@ -83,7 +91,9 @@ export function RegistrationToolbar({
           value={params.shiftPreference ?? "all"}
           onValueChange={(value) => setParam("shiftPreference", value)}
         >
-          <SelectTrigger className="w-full"><SelectValue placeholder="Tất cả ca" /></SelectTrigger>
+          <SelectTrigger className="w-full">
+            <SelectValue placeholder="Tất cả ca" />
+          </SelectTrigger>
           <SelectContent>
             <SelectGroup>
               <SelectItem value="all">Tất cả ca</SelectItem>

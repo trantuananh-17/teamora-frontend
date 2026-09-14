@@ -1,28 +1,246 @@
-import { BedDoubleIcon, BellRingIcon, BusIcon, CalendarDaysIcon, Clock3Icon, MapPinIcon, PlaneIcon, UsersRoundIcon } from "lucide-react"
+import {
+  BedDoubleIcon,
+  BellRingIcon,
+  BusIcon,
+  CalendarDaysIcon,
+  Clock3Icon,
+  MapPinIcon,
+  PlaneIcon,
+  UsersRoundIcon,
+} from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import type { Journey } from "../service/journey.service"
 
-const legLabels: Record<string, string> = { origin_to_airport: "Nơi ở → sân bay", airport_to_hotel: "Sân bay → khách sạn", hotel_to_airport: "Khách sạn → sân bay", airport_to_origin: "Sân bay → nơi ở" }
-const time = (value: Date) => new Intl.DateTimeFormat("vi-VN", { dateStyle: "short", timeStyle: "short" }).format(value)
+const legLabels: Record<string, string> = {
+  origin_to_airport: "Nơi ở → sân bay",
+  airport_to_hotel: "Sân bay → khách sạn",
+  hotel_to_airport: "Khách sạn → sân bay",
+  airport_to_origin: "Sân bay → nơi ở",
+}
+const time = (value: Date) =>
+  new Intl.DateTimeFormat("vi-VN", { dateStyle: "short", timeStyle: "short" }).format(value)
 
-function EmptyLine({ children }: { children: React.ReactNode }) { return <p className="rounded-md border border-dashed p-4 text-sm text-muted-foreground">{children}</p> }
+function EmptyLine({ children }: { children: React.ReactNode }) {
+  return (
+    <p className="rounded-md border border-dashed p-4 text-sm text-muted-foreground">{children}</p>
+  )
+}
 
 export function JourneyView({ journey }: { journey: Journey }) {
-  return <div className="flex flex-col gap-6">
-    <section className="overflow-hidden rounded-xl bg-gradient-to-br from-primary to-teal-700 p-6 text-primary-foreground shadow-sm sm:p-8">
-      <Badge variant="secondary">{journey.event.code}</Badge>
-      <h1 className="mt-4 text-2xl font-semibold sm:text-3xl">Hành trình của {journey.participant.name}</h1>
-      <p className="mt-2 text-sm text-primary-foreground/80">{journey.event.name} · Team {journey.participant.team.name}</p>
-    </section>
-    {!journey.participant.participating && <Card><CardContent className="pt-6"><EmptyLine>Bạn đã đăng ký không tham gia kỳ này nên không có phân bổ cá nhân.</EmptyLine></CardContent></Card>}
-    <div className="grid gap-6 lg:grid-cols-2">
-      <Card><CardHeader><CardTitle className="flex items-center gap-2"><PlaneIcon className="size-5 text-primary" />Chuyến bay</CardTitle><CardDescription>Giờ hiển thị theo múi giờ địa phương.</CardDescription></CardHeader><CardContent className="flex flex-col gap-3">{journey.flights.length ? journey.flights.map(({ flight }) => <div key={flight.id} className="rounded-lg border p-4"><div className="flex items-center justify-between gap-2"><strong>{flight.direction === "outbound" ? "Chiều đi" : "Chiều về"} · {flight.code}</strong><Badge variant="outline">{flight.shift === "shift_1" ? "Ca 1" : flight.shift === "shift_2" ? "Ca 2" : "Không ca"}</Badge></div><p className="mt-2 text-sm">{flight.fromAirport} → {flight.toAirport}</p><p className="mt-1 text-sm text-muted-foreground">{time(flight.departAt)} – {time(flight.arriveAt)}</p></div>) : <EmptyLine>BTC chưa phân chuyến bay cho bạn.</EmptyLine>}</CardContent></Card>
-      <Card><CardHeader><CardTitle className="flex items-center gap-2"><BusIcon className="size-5 text-primary" />Xe đưa đón</CardTitle><CardDescription>Bốn chặng theo nhu cầu đã đăng ký.</CardDescription></CardHeader><CardContent className="flex flex-col gap-3">{journey.vehicles.length ? journey.vehicles.map(({ assignment, vehicle, pickupPoint }) => <div key={`${assignment.leg}-${vehicle.id}`} className="rounded-lg border p-4"><strong>{legLabels[assignment.leg] ?? assignment.leg} · {vehicle.code}</strong><p className="mt-2 text-sm"><Clock3Icon className="mr-1 inline size-4" />Tập trung {time(vehicle.gatherAt)}, khởi hành {time(vehicle.departAt)}</p><p className="mt-1 text-sm text-muted-foreground"><MapPinIcon className="mr-1 inline size-4" />{pickupPoint?.name ?? "Điểm tập trung theo thông báo BTC"} → {vehicle.destination}</p>{vehicle.leaderName && <p className="mt-1 text-sm">Trưởng xe: {vehicle.leaderName}{vehicle.leaderPhone ? ` · ${vehicle.leaderPhone}` : ""}</p>}</div>) : <EmptyLine>Bạn không đăng ký xe hoặc BTC chưa phân xe.</EmptyLine>}</CardContent></Card>
-      <Card><CardHeader><CardTitle className="flex items-center gap-2"><BedDoubleIcon className="size-5 text-primary" />Khách sạn & phòng</CardTitle></CardHeader><CardContent>{journey.accommodation ? <div className="rounded-lg border p-4"><strong>{journey.accommodation.hotel.name} · Phòng {journey.accommodation.room.code}</strong><p className="mt-2 text-sm">Loại phòng: {journey.accommodation.roomType.name}</p><p className="mt-1 text-sm text-muted-foreground"><MapPinIcon className="mr-1 inline size-4" />{journey.accommodation.hotel.address}</p></div> : <EmptyLine>BTC chưa phân phòng cho bạn.</EmptyLine>}</CardContent></Card>
-      <Card><CardHeader><CardTitle className="flex items-center gap-2"><UsersRoundIcon className="size-5 text-primary" />Thông tin cá nhân</CardTitle></CardHeader><CardContent className="grid gap-3 text-sm sm:grid-cols-2"><div><span className="text-muted-foreground">Mã CBNV</span><p className="font-medium">{journey.participant.employeeCode ?? "—"}</p></div><div><span className="text-muted-foreground">Team</span><p className="font-medium">{journey.participant.team.name}</p></div><div><span className="text-muted-foreground">Email</span><p className="font-medium">{journey.participant.email}</p></div><div><span className="text-muted-foreground">Điện thoại</span><p className="font-medium">{journey.participant.phone ?? "—"}</p></div></CardContent></Card>
+  return (
+    <div className="flex flex-col gap-6">
+      <section className="overflow-hidden rounded-xl bg-gradient-to-br from-primary to-teal-700 p-6 text-primary-foreground shadow-sm sm:p-8">
+        <Badge variant="secondary">{journey.event.code}</Badge>
+        <h1 className="mt-4 text-2xl font-semibold sm:text-3xl">
+          Hành trình của {journey.participant.name}
+        </h1>
+        <p className="mt-2 text-sm text-primary-foreground/80">
+          {journey.event.name} · Team {journey.participant.team.name}
+        </p>
+      </section>
+      {!journey.participant.participating && (
+        <Card>
+          <CardContent className="pt-6">
+            <EmptyLine>
+              Bạn đã đăng ký không tham gia kỳ này nên không có phân bổ cá nhân.
+            </EmptyLine>
+          </CardContent>
+        </Card>
+      )}
+      <div className="grid gap-6 lg:grid-cols-2">
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <PlaneIcon className="size-5 text-primary" />
+              Chuyến bay
+            </CardTitle>
+            <CardDescription>Giờ hiển thị theo múi giờ địa phương.</CardDescription>
+          </CardHeader>
+          <CardContent className="flex flex-col gap-3">
+            {journey.flights.length ? (
+              journey.flights.map(({ flight }) => (
+                <div key={flight.id} className="rounded-lg border p-4">
+                  <div className="flex items-center justify-between gap-2">
+                    <strong>
+                      {flight.direction === "outbound" ? "Chiều đi" : "Chiều về"} · {flight.code}
+                    </strong>
+                    <Badge variant="outline">
+                      {flight.shift === "shift_1"
+                        ? "Ca 1"
+                        : flight.shift === "shift_2"
+                          ? "Ca 2"
+                          : "Không ca"}
+                    </Badge>
+                  </div>
+                  <p className="mt-2 text-sm">
+                    {flight.fromAirport} → {flight.toAirport}
+                  </p>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    {time(flight.departAt)} – {time(flight.arriveAt)}
+                  </p>
+                </div>
+              ))
+            ) : (
+              <EmptyLine>BTC chưa phân chuyến bay cho bạn.</EmptyLine>
+            )}
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <BusIcon className="size-5 text-primary" />
+              Xe đưa đón
+            </CardTitle>
+            <CardDescription>Bốn chặng theo nhu cầu đã đăng ký.</CardDescription>
+          </CardHeader>
+          <CardContent className="flex flex-col gap-3">
+            {journey.vehicles.length ? (
+              journey.vehicles.map(({ assignment, vehicle, pickupPoint }) => (
+                <div key={`${assignment.leg}-${vehicle.id}`} className="rounded-lg border p-4">
+                  <strong>
+                    {legLabels[assignment.leg] ?? assignment.leg} · {vehicle.code}
+                  </strong>
+                  <p className="mt-2 text-sm">
+                    <Clock3Icon className="mr-1 inline size-4" />
+                    Tập trung {time(vehicle.gatherAt)}, khởi hành {time(vehicle.departAt)}
+                  </p>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    <MapPinIcon className="mr-1 inline size-4" />
+                    {pickupPoint?.name ?? "Điểm tập trung theo thông báo BTC"} →{" "}
+                    {vehicle.destination}
+                  </p>
+                  {vehicle.leaderName && (
+                    <p className="mt-1 text-sm">
+                      Trưởng xe: {vehicle.leaderName}
+                      {vehicle.leaderPhone ? ` · ${vehicle.leaderPhone}` : ""}
+                    </p>
+                  )}
+                </div>
+              ))
+            ) : (
+              <EmptyLine>Bạn không đăng ký xe hoặc BTC chưa phân xe.</EmptyLine>
+            )}
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <BedDoubleIcon className="size-5 text-primary" />
+              Khách sạn & phòng
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {journey.accommodation ? (
+              <div className="rounded-lg border p-4">
+                <strong>
+                  {journey.accommodation.hotel.name} · Phòng {journey.accommodation.room.code}
+                </strong>
+                <p className="mt-2 text-sm">Loại phòng: {journey.accommodation.roomType.name}</p>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  <MapPinIcon className="mr-1 inline size-4" />
+                  {journey.accommodation.hotel.address}
+                </p>
+              </div>
+            ) : (
+              <EmptyLine>BTC chưa phân phòng cho bạn.</EmptyLine>
+            )}
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <UsersRoundIcon className="size-5 text-primary" />
+              Thông tin cá nhân
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="grid gap-3 text-sm sm:grid-cols-2">
+            <div>
+              <span className="text-muted-foreground">Mã CBNV</span>
+              <p className="font-medium">{journey.participant.employeeCode ?? "—"}</p>
+            </div>
+            <div>
+              <span className="text-muted-foreground">Team</span>
+              <p className="font-medium">{journey.participant.team.name}</p>
+            </div>
+            <div>
+              <span className="text-muted-foreground">Email</span>
+              <p className="font-medium">{journey.participant.email}</p>
+            </div>
+            <div>
+              <span className="text-muted-foreground">Điện thoại</span>
+              <p className="font-medium">{journey.participant.phone ?? "—"}</p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <CalendarDaysIcon className="size-5 text-primary" />
+            Lịch trình chung
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="flex flex-col gap-4">
+          {journey.schedule.length ? (
+            journey.schedule.map((item) => (
+              <div
+                key={item.id}
+                className="grid gap-2 border-l-2 border-primary pl-4 sm:grid-cols-[8rem_1fr]"
+              >
+                <div>
+                  <Badge variant="outline">Ngày {item.day}</Badge>
+                  <p className="mt-2 text-sm text-muted-foreground">
+                    {new Intl.DateTimeFormat("vi-VN", {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    }).format(item.startAt)}{" "}
+                    –{" "}
+                    {new Intl.DateTimeFormat("vi-VN", {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    }).format(item.endAt)}
+                  </p>
+                </div>
+                <div>
+                  <h3 className="font-medium">{item.title}</h3>
+                  {item.location && (
+                    <p className="text-sm text-muted-foreground">{item.location}</p>
+                  )}
+                  {item.description && <p className="mt-1 text-sm">{item.description}</p>}
+                </div>
+              </div>
+            ))
+          ) : (
+            <EmptyLine>BTC chưa cập nhật lịch trình.</EmptyLine>
+          )}
+        </CardContent>
+      </Card>
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <BellRingIcon className="size-5 text-primary" />
+            Thông báo mới nhất
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="flex flex-col gap-3">
+          {journey.announcements.length ? (
+            journey.announcements.map((item) => (
+              <article key={item.id} className="rounded-lg border p-4">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <h3 className="font-medium">{item.title}</h3>
+                  <span className="text-xs text-muted-foreground">
+                    {item.publishedAt ? time(item.publishedAt) : ""}
+                  </span>
+                </div>
+                <p className="mt-2 whitespace-pre-wrap text-sm">{item.body}</p>
+              </article>
+            ))
+          ) : (
+            <EmptyLine>Chưa có thông báo mới.</EmptyLine>
+          )}
+        </CardContent>
+      </Card>
     </div>
-    <Card><CardHeader><CardTitle className="flex items-center gap-2"><CalendarDaysIcon className="size-5 text-primary" />Lịch trình chung</CardTitle></CardHeader><CardContent className="flex flex-col gap-4">{journey.schedule.length ? journey.schedule.map((item) => <div key={item.id} className="grid gap-2 border-l-2 border-primary pl-4 sm:grid-cols-[8rem_1fr]"><div><Badge variant="outline">Ngày {item.day}</Badge><p className="mt-2 text-sm text-muted-foreground">{new Intl.DateTimeFormat("vi-VN", { hour: "2-digit", minute: "2-digit" }).format(item.startAt)} – {new Intl.DateTimeFormat("vi-VN", { hour: "2-digit", minute: "2-digit" }).format(item.endAt)}</p></div><div><h3 className="font-medium">{item.title}</h3>{item.location && <p className="text-sm text-muted-foreground">{item.location}</p>}{item.description && <p className="mt-1 text-sm">{item.description}</p>}</div></div>) : <EmptyLine>BTC chưa cập nhật lịch trình.</EmptyLine>}</CardContent></Card>
-    <Card><CardHeader><CardTitle className="flex items-center gap-2"><BellRingIcon className="size-5 text-primary" />Thông báo mới nhất</CardTitle></CardHeader><CardContent className="flex flex-col gap-3">{journey.announcements.length ? journey.announcements.map((item) => <article key={item.id} className="rounded-lg border p-4"><div className="flex flex-wrap items-center justify-between gap-2"><h3 className="font-medium">{item.title}</h3><span className="text-xs text-muted-foreground">{item.publishedAt ? time(item.publishedAt) : ""}</span></div><p className="mt-2 whitespace-pre-wrap text-sm">{item.body}</p></article>) : <EmptyLine>Chưa có thông báo mới.</EmptyLine>}</CardContent></Card>
-  </div>
+  )
 }

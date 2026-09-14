@@ -11,7 +11,5 @@ export function redirectToLogin(): void {
   const here = window.location.pathname + window.location.search
   const safe = here.startsWith("/") && !here.startsWith("//") && here !== "/login"
 
-  window.location.href = safe
-    ? `/login?redirect=${encodeURIComponent(here)}`
-    : "/login"
+  window.location.href = safe ? `/login?redirect=${encodeURIComponent(here)}` : "/login"
 }

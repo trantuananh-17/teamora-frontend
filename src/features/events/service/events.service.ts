@@ -19,10 +19,12 @@ export const eventStatuses = [
 
 export type EventStatus = (typeof eventStatuses)[number]
 
-export const eventSettingsSchema = z.object({
-  terms: z.object({ version: z.string(), body: z.string() }).optional(),
-  shifts: z.array(z.object({ key: z.string(), label: z.string() })).optional(),
-}).passthrough()
+export const eventSettingsSchema = z
+  .object({
+    terms: z.object({ version: z.string(), body: z.string() }).optional(),
+    shifts: z.array(z.object({ key: z.string(), label: z.string() })).optional(),
+  })
+  .passthrough()
 
 export const eventSchema = z.object({
   id: z.string(),

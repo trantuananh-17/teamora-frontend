@@ -19,10 +19,10 @@ export function RegistrationsTable({ eventId, params }: RegistrationsTableProps)
       data={data.items}
       hasFilters={Boolean(
         params.search ||
-          params.teamId ||
-          params.participating !== undefined ||
-          params.shiftPreference ||
-          params.shiftLocked !== undefined
+        params.teamId ||
+        params.participating !== undefined ||
+        params.shiftPreference ||
+        params.shiftLocked !== undefined,
       )}
       emptyView={
         <EntityEmptyView

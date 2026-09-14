@@ -15,7 +15,12 @@ export function AuditLogsTable({ eventId, query }: { eventId: string; query: Aud
       data={data.items}
       hasFilters={hasFilters}
       noResultsText="Không có thay đổi nào khớp bộ lọc."
-      emptyView={<EntityEmptyView title="Chưa có nhật ký" message="Các thao tác có hậu quả trong kỳ sẽ xuất hiện tại đây." />}
+      emptyView={
+        <EntityEmptyView
+          title="Chưa có nhật ký"
+          message="Các thao tác có hậu quả trong kỳ sẽ xuất hiện tại đây."
+        />
+      }
     />
   )
 }

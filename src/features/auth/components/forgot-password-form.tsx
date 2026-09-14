@@ -32,7 +32,10 @@ export function ForgotPasswordForm() {
         </CardHeader>
         <CardContent>
           <Button asChild variant="outline" size="lg" className="min-h-11 w-full">
-            <Link href="/login"><ArrowLeftIcon data-icon="inline-start" />Quay lại đăng nhập</Link>
+            <Link href="/login">
+              <ArrowLeftIcon data-icon="inline-start" />
+              Quay lại đăng nhập
+            </Link>
           </Button>
         </CardContent>
       </Card>
@@ -66,7 +69,9 @@ export function ForgotPasswordForm() {
                 aria-invalid={Boolean(form.formState.errors.email)}
                 {...form.register("email")}
               />
-              <FieldDescription>Teamora không tiết lộ email này có tài khoản hay chưa.</FieldDescription>
+              <FieldDescription>
+                Teamora không tiết lộ email này có tài khoản hay chưa.
+              </FieldDescription>
               <FieldError errors={[form.formState.errors.email]} />
             </Field>
           </FieldGroup>
@@ -79,7 +84,10 @@ export function ForgotPasswordForm() {
             {mutation.isPending ? "Đang gửi…" : "Gửi liên kết thiết lập mật khẩu"}
           </Button>
           <Button asChild variant="ghost" size="lg" className="min-h-11 w-full">
-            <Link href="/login"><ArrowLeftIcon data-icon="inline-start" />Quay lại đăng nhập</Link>
+            <Link href="/login">
+              <ArrowLeftIcon data-icon="inline-start" />
+              Quay lại đăng nhập
+            </Link>
           </Button>
         </form>
       </CardContent>

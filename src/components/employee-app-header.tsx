@@ -49,9 +49,7 @@ export function EmployeeAppHeader({
   const pathname = usePathname()
   const registrationPhase = Boolean(
     event &&
-      ["registration_open", "registration_closed", "allocation_processing"].includes(
-        event.status,
-      ),
+    ["registration_open", "registration_closed", "allocation_processing"].includes(event.status),
   )
   const journeyAvailable = Boolean(
     event && ["information_published", "event_started", "event_completed"].includes(event.status),
@@ -115,7 +113,11 @@ export function EmployeeAppHeader({
         </nav>
 
         <div className="flex shrink-0 items-center gap-1">
-          {event && <div className="hidden xl:block"><EventStatusBadge status={event.status} /></div>}
+          {event && (
+            <div className="hidden xl:block">
+              <EventStatusBadge status={event.status} />
+            </div>
+          )}
           <ThemeToggleButton />
           <div className="hidden items-center gap-2 border-l pl-3 sm:flex">
             <Avatar>
@@ -140,9 +142,7 @@ export function EmployeeAppHeader({
             aria-current={pathname === "/register" ? "page" : undefined}
             className={cn(
               "inline-flex min-h-11 shrink-0 items-center gap-2 rounded-md px-3 text-sm font-medium",
-              pathname === "/register"
-                ? "bg-primary/10 text-primary"
-                : "text-muted-foreground",
+              pathname === "/register" ? "bg-primary/10 text-primary" : "text-muted-foreground",
             )}
           >
             <CalendarCheckIcon className="size-4" aria-hidden="true" />

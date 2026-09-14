@@ -30,9 +30,7 @@ export function AppHeader() {
   const { data: events } = useQuery(eventsListOptions())
   const active = useActiveEvent(events?.items)
 
-  const eventCrumb = active
-    ? { label: active.name, href: `/admin/events/${active.id}` }
-    : undefined
+  const eventCrumb = active ? { label: active.name, href: `/admin/events/${active.id}` } : undefined
 
   const eventItems = active
     ? EVENT_NAV.map((item) => ({ ...item, url: item.url.replace(":eventId", active.id) }))

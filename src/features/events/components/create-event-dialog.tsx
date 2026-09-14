@@ -45,9 +45,7 @@ export function CreateEventDialog({
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Tạo kỳ Team Building</DialogTitle>
-          <DialogDescription>
-            Kỳ mới bắt đầu ở trạng thái “Đang mở đăng ký”.
-          </DialogDescription>
+          <DialogDescription>Kỳ mới bắt đầu ở trạng thái “Đang mở đăng ký”.</DialogDescription>
         </DialogHeader>
 
         <form
@@ -86,8 +84,8 @@ export function CreateEventDialog({
               placeholder="TB2026"
             />
             <p className="text-xs text-muted-foreground">
-              Chữ, số, gạch ngang và gạch dưới. <strong>Không đổi được sau khi tạo</strong> — mã
-              này đi vào file export và email đã gửi.
+              Chữ, số, gạch ngang và gạch dưới. <strong>Không đổi được sau khi tạo</strong> — mã này
+              đi vào file export và email đã gửi.
             </p>
           </div>
 

@@ -14,8 +14,6 @@ import { createAuthClient } from "better-auth/react"
  */
 export const authClient = createAuthClient({
   baseURL:
-    typeof window === "undefined"
-      ? process.env.TEAMORA_API_URL || "http://localhost:8080"
-      : "",
+    typeof window === "undefined" ? process.env.TEAMORA_API_URL || "http://localhost:8080" : "",
   basePath: typeof window === "undefined" ? "/v1/auth" : "/api/auth",
 })

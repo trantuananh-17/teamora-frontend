@@ -224,12 +224,7 @@ export function AppSidebar({
 
       <SidebarContent>
         {active && (
-          <NavGroup
-            label="Kỳ này"
-            items={EVENT_NAV}
-            eventId={active.id}
-            pathname={pathname}
-          />
+          <NavGroup label="Kỳ này" items={EVENT_NAV} eventId={active.id} pathname={pathname} />
         )}
         <NavGroup label="Dùng chung mọi kỳ" items={SHARED_NAV} pathname={pathname} />
       </SidebarContent>

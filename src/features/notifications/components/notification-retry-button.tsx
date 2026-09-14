@@ -16,7 +16,10 @@ export function NotificationRetryButton({ eventId, id }: { eventId: string; id: 
       disabled={retry.isPending}
       onClick={() => retry.mutate(id)}
     >
-      <RefreshCwIcon data-icon="inline-start" className={retry.isPending ? "animate-spin" : undefined} />
+      <RefreshCwIcon
+        data-icon="inline-start"
+        className={retry.isPending ? "animate-spin" : undefined}
+      />
       Gửi lại
     </Button>
   )

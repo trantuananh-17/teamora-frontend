@@ -9,5 +9,11 @@ export function AuditLogsLoading() {
 }
 
 export function AuditLogsError() {
-  return <EntityStateView icon={<AlertTriangleIcon />} title="Không tải được nhật ký" message="Tải lại trang. Nếu vẫn lỗi, kiểm tra backend còn chạy không." />
+  return (
+    <EntityStateView
+      icon={<AlertTriangleIcon />}
+      title="Không tải được nhật ký"
+      message="Tải lại trang. Nếu vẫn lỗi, kiểm tra backend còn chạy không."
+    />
+  )
 }

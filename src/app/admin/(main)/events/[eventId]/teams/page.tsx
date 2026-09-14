@@ -12,11 +12,7 @@ import { requireOrganizer } from "@/lib/auth"
 
 export const metadata: Metadata = { title: "Team / Bộ phận" }
 
-export default async function EventTeamsPage({
-  params,
-}: {
-  params: Promise<{ eventId: string }>
-}) {
+export default async function EventTeamsPage({ params }: { params: Promise<{ eventId: string }> }) {
   await requireOrganizer()
   const { eventId } = await params
   await prefetchTeams(eventId)
