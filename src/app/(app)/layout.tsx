@@ -1,4 +1,5 @@
 import { EmployeeAppHeader } from "@/components/employee-app-header"
+import { RagentaWidget } from "@/components/ragenta-widget"
 import { getMyEmployeeProfile } from "@/features/employees/service/employees.service"
 import { EventProvider } from "@/features/events/components/event-provider"
 import { getCurrentEvent } from "@/features/events/service/events.service"
@@ -34,6 +35,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         <footer className="border-t bg-background px-4 py-4 text-center text-xs text-muted-foreground">
           Teamora · Nguồn thông tin chính thức từ Ban Tổ chức
         </footer>
+        <RagentaWidget user={user} />
       </div>
     </EventProvider>
   )
