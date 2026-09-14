@@ -1,3 +1,4 @@
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { cn } from "@/lib/utils"
 
 /**
@@ -74,4 +75,32 @@ const NOTIFICATION_STATUS: Record<string, { label: string; tone: Tone }> = {
 export function NotificationStatusBadge({ status }: { status: string }) {
   const mapped = NOTIFICATION_STATUS[status]
   return <Badge tone={mapped?.tone ?? "muted"}>{mapped?.label ?? status}</Badge>
+}
+
+/**
+ * Allocator flags (ADR-017). `shift_unmet` is a preference the run could not
+ * honour; `shift_locked_unmet` is a real work constraint left without a seat,
+ * which the organiser must clear before anything else — so it is red while its
+ * sibling is only amber. The tooltip carries the reason so a chip never needs
+ * a second column to explain itself.
+ */
+const ALLOCATION_FLAG: Record<string, { label: string; reason: string; tone: Tone }> = {
+  team_split: { label: "Team bị tách", reason: "Team này không cùng một chuyến.", tone: "warning" },
+  shift_unmet: { label: "Lệch ca đăng ký", reason: "Không xếp được đúng ca đã đăng ký.", tone: "warning" },
+  shift_locked_unmet: { label: "Không xếp được ca bắt buộc", reason: "Ca bắt buộc theo công việc chưa có chỗ.", tone: "destructive" },
+  unassigned: { label: "Chưa xếp được", reason: "Hết chỗ ở mọi chuyến phù hợp.", tone: "destructive" },
+  over_capacity: { label: "Vượt sức chứa", reason: "Điều chỉnh tay đã vượt sức chứa (§5.5).", tone: "destructive" },
+}
+
+export function AllocationFlagBadge({ flag }: { flag: string }) {
+  const mapped = ALLOCATION_FLAG[flag]
+  if (!mapped) return <Badge tone="muted">{flag}</Badge>
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <span><Badge tone={mapped.tone}>{mapped.label}</Badge></span>
+      </TooltipTrigger>
+      <TooltipContent>{mapped.reason}</TooltipContent>
+    </Tooltip>
+  )
 }

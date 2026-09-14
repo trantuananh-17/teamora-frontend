@@ -18,7 +18,7 @@ export function NotificationsToolbar({ status }: { status?: NotificationStatus }
   const searchParams = useSearchParams()
 
   return (
-    <div className="flex max-w-sm">
+    <div className="flex">
       <Select
         value={status ?? "all"}
         onValueChange={(value) => {
@@ -29,7 +29,7 @@ export function NotificationsToolbar({ status }: { status?: NotificationStatus }
           router.replace(`${pathname}${next.size ? `?${next}` : ""}`)
         }}
       >
-        <SelectTrigger aria-label="Lọc theo trạng thái email">
+        <SelectTrigger className="w-full sm:w-56" aria-label="Lọc theo trạng thái email">
           <SelectValue placeholder="Tất cả trạng thái" />
         </SelectTrigger>
         <SelectContent>

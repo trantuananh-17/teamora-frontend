@@ -19,6 +19,7 @@ export const columns: ColumnDef<Registration>[] = [
   {
     accessorKey: "user.email",
     header: "Email",
+    meta: { priority: "secondary" },
     cell: ({ row }) => (
       <div className="text-sm text-muted-foreground">{row.original.user.email}</div>
     ),
@@ -26,6 +27,7 @@ export const columns: ColumnDef<Registration>[] = [
   {
     accessorKey: "team.name",
     header: "Bộ phận",
+    meta: { priority: "secondary" },
   },
   {
     accessorKey: "participating",
@@ -60,6 +62,7 @@ export const columns: ColumnDef<Registration>[] = [
   {
     accessorKey: "submittedAt",
     header: "Ngày đăng ký",
+    meta: { priority: "tertiary" },
     cell: ({ row }) =>
       row.original.submittedAt ? (
         <span className="text-sm">

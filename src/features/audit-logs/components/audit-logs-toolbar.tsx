@@ -24,17 +24,17 @@ export function AuditLogsToolbar({ query, filters }: { query: AuditLogsQuery; fi
   const hasFilters = Boolean(query.search || query.entity || query.action)
 
   return (
-    <div className="grid gap-3 md:grid-cols-[minmax(16rem,1fr)_13rem_13rem_auto]">
-      <EntitySearch value={query.search ?? ""} onChange={(value) => replace("search", value || undefined)} placeholder="Tìm người thao tác, ID hoặc lý do..." />
+    <div className="grid grid-cols-2 gap-2 md:grid-cols-[minmax(16rem,1fr)_13rem_13rem_auto]">
+      <EntitySearch value={query.search ?? ""} onChange={(value) => replace("search", value || undefined)} placeholder="Tìm người thao tác, ID hoặc lý do..." className="col-span-2 md:col-span-1" />
       <Select value={query.entity ?? "all"} onValueChange={(value) => replace("entity", value === "all" ? undefined : value)}>
-        <SelectTrigger aria-label="Lọc theo đối tượng"><SelectValue placeholder="Tất cả đối tượng" /></SelectTrigger>
+        <SelectTrigger className="w-full" aria-label="Lọc theo đối tượng"><SelectValue placeholder="Tất cả đối tượng" /></SelectTrigger>
         <SelectContent><SelectGroup><SelectItem value="all">Tất cả đối tượng</SelectItem>{filters.entities.map((value) => <SelectItem key={value} value={value}>{AUDIT_ENTITY_LABELS[value] ?? value}</SelectItem>)}</SelectGroup></SelectContent>
       </Select>
       <Select value={query.action ?? "all"} onValueChange={(value) => replace("action", value === "all" ? undefined : value)}>
-        <SelectTrigger aria-label="Lọc theo hành động"><SelectValue placeholder="Tất cả hành động" /></SelectTrigger>
+        <SelectTrigger className="w-full" aria-label="Lọc theo hành động"><SelectValue placeholder="Tất cả hành động" /></SelectTrigger>
         <SelectContent><SelectGroup><SelectItem value="all">Tất cả hành động</SelectItem>{filters.actions.map((value) => <SelectItem key={value} value={value}>{AUDIT_ACTION_LABELS[value] ?? value}</SelectItem>)}</SelectGroup></SelectContent>
       </Select>
-      <Button type="button" variant="outline" disabled={!hasFilters} onClick={() => router.replace(pathname)}>Xóa lọc</Button>
+      <Button type="button" variant="outline" className="col-span-2 md:col-span-1" disabled={!hasFilters} onClick={() => router.replace(pathname)}>Xóa lọc</Button>
     </div>
   )
 }

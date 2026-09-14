@@ -50,14 +50,15 @@ export function RegistrationToolbar({
 
   return (
     <div className="flex flex-col gap-3">
-      <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+      <div className="grid grid-cols-2 gap-2 md:grid-cols-4">
         <EntitySearch
           value={params.search ?? ""}
           onChange={(value) => setParam("search", value)}
           placeholder="Tìm tên, email, mã NV..."
+          className="col-span-2 md:col-span-1"
         />
         <Select value={params.teamId ?? "all"} onValueChange={(value) => setParam("teamId", value)}>
-          <SelectTrigger><SelectValue placeholder="Tất cả Team" /></SelectTrigger>
+          <SelectTrigger className="w-full"><SelectValue placeholder="Tất cả Team" /></SelectTrigger>
           <SelectContent>
             <SelectGroup>
               <SelectItem value="all">Tất cả Team</SelectItem>
@@ -69,7 +70,7 @@ export function RegistrationToolbar({
           value={params.participating === undefined ? "all" : String(params.participating)}
           onValueChange={(value) => setParam("participating", value)}
         >
-          <SelectTrigger><SelectValue placeholder="Trạng thái tham gia" /></SelectTrigger>
+          <SelectTrigger className="w-full"><SelectValue placeholder="Trạng thái tham gia" /></SelectTrigger>
           <SelectContent>
             <SelectGroup>
               <SelectItem value="all">Tất cả phản hồi</SelectItem>
@@ -82,7 +83,7 @@ export function RegistrationToolbar({
           value={params.shiftPreference ?? "all"}
           onValueChange={(value) => setParam("shiftPreference", value)}
         >
-          <SelectTrigger><SelectValue placeholder="Tất cả ca" /></SelectTrigger>
+          <SelectTrigger className="w-full"><SelectValue placeholder="Tất cả ca" /></SelectTrigger>
           <SelectContent>
             <SelectGroup>
               <SelectItem value="all">Tất cả ca</SelectItem>
@@ -92,7 +93,7 @@ export function RegistrationToolbar({
           </SelectContent>
         </Select>
       </div>
-      <div className="flex flex-wrap justify-end gap-2">
+      <div className="flex flex-wrap gap-2 md:justify-end">
         <Button
           type="button"
           variant="outline"
