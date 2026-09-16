@@ -1,8 +1,12 @@
+import type { Metadata } from "next"
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query"
 import { AccommodationsManager } from "@/features/logistics/components"
 import { prefetchAccommodations } from "@/features/logistics/server/prefetch"
 import { requireOrganizer } from "@/lib/auth"
 import { getQueryClient } from "@/lib/get-query-client"
+
+export const metadata: Metadata = { title: "Khách sạn & phòng" }
+
 export default async function AccommodationsPage({
   params,
 }: {

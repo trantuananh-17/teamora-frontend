@@ -2,6 +2,7 @@ import "server-only"
 import { getQueryClient } from "@/lib/get-query-client"
 import {
   accommodationsOptions,
+  roomRunsOptions,
   vehicleAssignmentsOptions,
   vehicleRunsOptions,
   vehiclesOptions,
@@ -12,7 +13,10 @@ export const prefetchVehicles = (id: string) =>
     getQueryClient().prefetchQuery(vehicleRunsOptions(id)),
   ])
 export const prefetchAccommodations = (id: string) =>
-  getQueryClient().prefetchQuery(accommodationsOptions(id))
+  Promise.all([
+    getQueryClient().prefetchQuery(accommodationsOptions(id)),
+    getQueryClient().prefetchQuery(roomRunsOptions(id)),
+  ])
 export const prefetchVehicleAllocation = (id: string, page = 1, pageSize = 25) =>
   Promise.all([
     getQueryClient().prefetchQuery(vehiclesOptions(id)),

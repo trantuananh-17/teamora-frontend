@@ -2,6 +2,7 @@ import { queryOptions } from "@tanstack/react-query"
 import {
   listHotels,
   listRoomAssignments,
+  listRoomRuns,
   listRooms,
   listRoomTypes,
   listVehicleAssignments,
@@ -23,6 +24,11 @@ export const vehicleAssignmentsOptions = (id: string, page = 1, pageSize = 25) =
   queryOptions({
     queryKey: [...logisticsKeys.event(id), "vehicle-assignments", page, pageSize],
     queryFn: () => listVehicleAssignments(id, page, pageSize),
+  })
+export const roomRunsOptions = (id: string) =>
+  queryOptions({
+    queryKey: [...logisticsKeys.event(id), "room-runs"],
+    queryFn: () => listRoomRuns(id),
   })
 export const accommodationsOptions = (id: string) =>
   queryOptions({

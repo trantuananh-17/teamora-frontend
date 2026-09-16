@@ -60,13 +60,18 @@ const statsSchema = z.object({
   teamsSplit: z.number(),
   shiftUnmet: z.number(),
 })
-const vehicleRunSchema = z.object({
+const allocationRunSchema = z.object({
   id: z.string(),
   eventId: z.string(),
-  type: z.literal("vehicle"),
   status: z.enum(["preview", "committed", "discarded"]),
   params: z.record(z.string(), z.number()),
   stats: statsSchema,
+  createdBy: z.string(),
+  createdAt: z.coerce.date(),
+  committedAt: z.coerce.date().nullable(),
+})
+const vehicleRunSchema = allocationRunSchema.extend({
+  type: z.literal("vehicle"),
   plan: z.object({
     assignments: z.array(
       z.object({
@@ -84,9 +89,6 @@ const vehicleRunSchema = z.object({
       }),
     ),
   }),
-  createdBy: z.string(),
-  createdAt: z.coerce.date(),
-  committedAt: z.coerce.date().nullable(),
 })
 export type VehicleRun = z.infer<typeof vehicleRunSchema>
 export async function listVehicleRuns(eventId: string) {
@@ -110,6 +112,40 @@ export async function commitVehicleRun(eventId: string, id: string) {
 }
 export async function discardVehicleRun(eventId: string, id: string) {
   return vehicleRunSchema.parse(
+    await (await api.post(`events/${eventId}/allocations/${id}/discard`)).json(),
+  )
+}
+const roomRunSchema = allocationRunSchema.extend({
+  type: z.literal("room"),
+  plan: z.object({
+    assignments: z.array(
+      z.object({ registrationId: z.string(), roomId: z.string(), flags: z.array(z.string()) }),
+    ),
+    unassigned: z.array(z.object({ registrationId: z.string(), reason: z.literal("unassigned") })),
+  }),
+})
+export type RoomRun = z.infer<typeof roomRunSchema>
+export async function listRoomRuns(eventId: string) {
+  return z
+    .object({ items: z.array(roomRunSchema) })
+    .parse(
+      await (
+        await api.get(`events/${eventId}/allocations`, { searchParams: { type: "room" } })
+      ).json(),
+    ).items
+}
+export async function previewRooms(eventId: string) {
+  return roomRunSchema.parse(
+    await (await api.post(`events/${eventId}/allocations`, { json: { type: "room" } })).json(),
+  )
+}
+export async function commitRoomRun(eventId: string, id: string) {
+  return roomRunSchema.parse(
+    await (await api.post(`events/${eventId}/allocations/${id}/commit`)).json(),
+  )
+}
+export async function discardRoomRun(eventId: string, id: string) {
+  return roomRunSchema.parse(
     await (await api.post(`events/${eventId}/allocations/${id}/discard`)).json(),
   )
 }
@@ -199,6 +235,8 @@ const roomItemSchema = z.object({
   roomType: roomTypeSchema,
   assignedCount: z.number(),
 })
+export type Hotel = z.infer<typeof hotelSchema>
+export type Room = z.infer<typeof roomSchema>
 export type HotelItem = z.infer<typeof hotelItemSchema>
 export type RoomType = z.infer<typeof roomTypeSchema>
 export type RoomItem = z.infer<typeof roomItemSchema>
@@ -217,25 +255,50 @@ export async function listRooms(eventId: string) {
     .object({ items: z.array(roomItemSchema) })
     .parse(await (await api.get(`events/${eventId}/rooms`)).json()).items
 }
+export const genders = ["male", "female", "other", "undisclosed"] as const
+export type Gender = (typeof genders)[number]
+/** Every participating registration, with or without a room, so the panel can show who is still unplaced. */
 const roomAssignmentViewSchema = z.object({
-  assignment: z.object({
-    id: z.string(),
-    roomId: z.string(),
-    registrationId: z.string(),
-    source: z.enum(["import", "manual", "auto"]),
-    locked: z.boolean(),
-  }),
-  room: roomSchema,
-  hotel: hotelSchema,
+  registrationId: z.string(),
   employeeCode: z.string().nullable(),
   name: z.string(),
   email: z.string(),
+  team: z.object({ id: z.string(), name: z.string() }).nullable(),
+  gender: z.enum(genders),
+  assignment: z
+    .object({
+      id: z.string(),
+      roomId: z.string(),
+      source: z.enum(["import", "manual", "auto"]),
+      locked: z.boolean(),
+      room: roomSchema,
+      hotel: hotelSchema,
+    })
+    .nullable(),
 })
 export type RoomAssignmentView = z.infer<typeof roomAssignmentViewSchema>
 export async function listRoomAssignments(eventId: string) {
   return z
     .object({ items: z.array(roomAssignmentViewSchema) })
     .parse(await (await api.get(`events/${eventId}/room-assignments`)).json()).items
+}
+export async function manualAssignRoom(
+  eventId: string,
+  input: { registrationIds: string[]; roomId: string; reason: string },
+) {
+  await api.post(`events/${eventId}/room-assignments/manual`, { json: input })
+}
+export async function unassignRoom(eventId: string, assignmentId: string) {
+  await api.delete(`events/${eventId}/room-assignments/${assignmentId}`)
+}
+export async function setRoomAssignmentLock(
+  eventId: string,
+  assignmentId: string,
+  locked: boolean,
+) {
+  await api.patch(`events/${eventId}/room-assignments/${assignmentId}/lock`, {
+    json: { locked, reason: "Giữ nguyên khi chạy lại phân phòng" },
+  })
 }
 export async function createHotel(eventId: string, input: { name: string; address: string }) {
   await api.post(`events/${eventId}/hotels`, { json: input })

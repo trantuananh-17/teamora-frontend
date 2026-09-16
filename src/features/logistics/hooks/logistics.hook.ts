@@ -5,6 +5,7 @@ import { errorMessage } from "@/lib/api-error"
 import {
   accommodationsOptions,
   logisticsKeys,
+  roomRunsOptions,
   vehicleAssignmentsOptions,
   vehicleRunsOptions,
   vehiclesOptions,
@@ -15,6 +16,7 @@ export const useVehicleRuns = (id: string) => useSuspenseQuery(vehicleRunsOption
 export const useVehicleAssignments = (id: string, page = 1, pageSize = 25) =>
   useSuspenseQuery(vehicleAssignmentsOptions(id, page, pageSize))
 export const useAccommodations = (id: string) => useSuspenseQuery(accommodationsOptions(id))
+export const useRoomRuns = (id: string) => useSuspenseQuery(roomRunsOptions(id))
 function useLogisticsMutation<T>(
   eventId: string,
   fn: (input: T) => Promise<unknown>,
@@ -101,9 +103,29 @@ export const useUpdateRoom = (eventId: string, id: string) =>
   )
 export const useDeleteRoom = (id: string) =>
   useLogisticsMutation<string>(id, (x) => service.deleteRoom(id, x), "Đã xóa phòng")
+export const usePreviewRooms = (id: string) =>
+  useLogisticsMutation<void>(id, () => service.previewRooms(id), "Đã tạo phương án phân phòng")
+export const useCommitRooms = (id: string) =>
+  useLogisticsMutation<string>(id, (x) => service.commitRoomRun(id, x), "Đã commit phân phòng")
+export const useDiscardRooms = (id: string) =>
+  useLogisticsMutation<string>(id, (x) => service.discardRoomRun(id, x), "Đã hủy phương án")
 export const useImportRoomAssignments = (id: string) =>
   useLogisticsMutation<File>(
     id,
     (x) => service.importRoomAssignments(id, x),
     "Đã import phân phòng",
+  )
+export const useManualAssignRoom = (id: string) =>
+  useLogisticsMutation<{ registrationIds: string[]; roomId: string; reason: string }>(
+    id,
+    (x) => service.manualAssignRoom(id, x),
+    "Đã xếp phòng",
+  )
+export const useUnassignRoom = (id: string) =>
+  useLogisticsMutation<string>(id, (x) => service.unassignRoom(id, x), "Đã bỏ khỏi phòng")
+export const useSetRoomAssignmentLock = (id: string) =>
+  useLogisticsMutation<{ assignmentId: string; locked: boolean }>(
+    id,
+    (x) => service.setRoomAssignmentLock(id, x.assignmentId, x.locked),
+    "Đã cập nhật khóa",
   )
