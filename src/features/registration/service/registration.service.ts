@@ -32,6 +32,7 @@ export const registrationSchema = z.object({
   termsVersion: z.string().nullable(),
   shiftPreference: shiftSchema.nullable(),
   shiftLocked: z.boolean(),
+  isTeamLeader: z.boolean(),
   wishNote: z.string().nullable(),
   submittedAt: z.coerce.date().nullable(),
   updatedAt: z.coerce.date(),
@@ -51,6 +52,8 @@ export const registrationSchema = z.object({
     })
     .nullable(),
   transportNeeds: z.array(transportNeedSchema),
+  /** Only on `registrations/me` — who acts for the team at the Gala (§8.3). */
+  teamLeaderName: z.string().nullable().optional(),
 })
 export type Registration = z.infer<typeof registrationSchema>
 

@@ -1,23 +1,14 @@
 "use client"
 import { useState } from "react"
-import Link from "next/link"
 import type { ColumnDef } from "@tanstack/react-table"
-import { useQuery } from "@tanstack/react-query"
-import {
-  BusIcon,
-  CheckCircle2Icon,
-  DownloadIcon,
-  PencilIcon,
-  SparklesIcon,
-  Trash2Icon,
-  XCircleIcon,
-} from "lucide-react"
+import { BusIcon, DownloadIcon, PencilIcon, Trash2Icon } from "lucide-react"
 import {
   EntityContainer,
   EntityDataTable,
   EntityEmptyView,
   EntityHeader,
 } from "@/components/entity-components"
+import { StatCard } from "@/components/stat-card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
@@ -38,15 +29,11 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
-import { getPickupPoints } from "@/features/pickup-points/service/pickup-points.service"
+import { usePickupPointsSuspense } from "@/features/pickup-points/hooks/pickup-points.hook"
 import {
-  useCommitVehicles,
   useCreateVehicle,
   useDeleteVehicle,
-  useDiscardVehicles,
-  usePreviewVehicles,
   useUpdateVehicle,
-  useVehicleRuns,
   useVehicles,
 } from "../hooks/logistics.hook"
 import {
@@ -95,18 +82,11 @@ const fromVehicle = (v: Vehicle): VehicleInput => ({
 
 export function VehiclesManager({ eventId }: { eventId: string }) {
   const { data } = useVehicles(eventId)
-  const { data: runs } = useVehicleRuns(eventId)
-  const { data: pickupPoints = [] } = useQuery({
-    queryKey: ["pickup-points", eventId],
-    queryFn: () => getPickupPoints(eventId),
-  })
+  const { data: pickupPoints } = usePickupPointsSuspense(eventId)
   const [editing, setEditing] = useState<Vehicle | null | undefined>()
   const remove = useDeleteVehicle(eventId)
-  const preview = usePreviewVehicles(eventId)
-  const commit = useCommitVehicles(eventId)
-  const discard = useDiscardVehicles(eventId)
-  const pending = runs.find((run) => run.status === "preview")
-  const latest = runs[0]
+  const capacity = data.items.reduce((s, x) => s + x.capacity, 0)
+  const assigned = data.items.reduce((s, x) => s + x.assignedCount, 0)
   const columns: ColumnDef<Vehicle>[] = [
     {
       accessorKey: "code",
@@ -129,6 +109,7 @@ export function VehiclesManager({ eventId }: { eventId: string }) {
       accessorKey: "departAt",
       header: "Khởi hành",
       cell: ({ row }) => row.original.departAt.toLocaleString("vi-VN"),
+      meta: { priority: "secondary" },
     },
     {
       id: "capacity",
@@ -139,6 +120,7 @@ export function VehiclesManager({ eventId }: { eventId: string }) {
       accessorKey: "leaderName",
       header: "Trưởng xe",
       cell: ({ row }) => row.original.leaderName || "—",
+      meta: { priority: "tertiary" },
     },
     {
       id: "actions",
@@ -165,58 +147,32 @@ export function VehiclesManager({ eventId }: { eventId: string }) {
       header={
         <EntityHeader
           title="Xe đưa đón"
-          description="Cấu hình xe cho bốn chặng và phân bổ dựa trên chuyến bay đã chốt."
+          description="Khai báo xe cho bốn chặng: sức chứa, giờ tập trung, điểm đón và trưởng xe."
           newButtonLabel="Thêm xe"
           onNew={() => setEditing(null)}
           actions={
-            <div className="flex gap-2">
-              <Button asChild variant="outline">
-                <a href={vehiclesExportUrl(eventId)}>
-                  <DownloadIcon />
-                  Xuất tổng hợp
-                </a>
-              </Button>
-              <Button asChild variant="outline">
-                <Link href={`/admin/events/${eventId}/vehicles/allocation`}>Bàn phân xe</Link>
-              </Button>
-              {pending ? (
-                <>
-                  <Button
-                    variant="outline"
-                    disabled={discard.isPending}
-                    onClick={() => discard.mutate(pending.id)}
-                  >
-                    <XCircleIcon />
-                    Bỏ preview
-                  </Button>
-                  <Button disabled={commit.isPending} onClick={() => commit.mutate(pending.id)}>
-                    <CheckCircle2Icon />
-                    Commit
-                  </Button>
-                </>
-              ) : (
-                <Button
-                  variant="outline"
-                  disabled={!data.items.length || preview.isPending}
-                  onClick={() => preview.mutate()}
-                >
-                  <SparklesIcon />
-                  Chạy preview
-                </Button>
-              )}
-            </div>
+            <Button asChild variant="outline" size="sm">
+              <a href={vehiclesExportUrl(eventId)}>
+                <DownloadIcon />
+                Xuất tổng hợp
+              </a>
+            </Button>
           }
         />
       }
       stats={
-        <div className="grid gap-3 sm:grid-cols-4">
-          <Metric label="Tổng xe" value={data.total} />
-          <Metric label="Tổng chỗ" value={data.items.reduce((s, x) => s + x.capacity, 0)} />
-          <Metric
-            label="Đã xếp gần nhất"
-            value={latest?.stats.assigned ?? data.items.reduce((s, x) => s + x.assignedCount, 0)}
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+          <StatCard label="Tổng xe" value={data.total} />
+          <StatCard
+            label="Chặng có xe"
+            value={`${new Set(data.items.map((x) => x.leg)).size} / ${transportLegs.length}`}
           />
-          <Metric label="Chưa xếp" value={latest?.stats.unassigned ?? 0} />
+          <StatCard label="Tổng chỗ" value={capacity} />
+          <StatCard
+            label="Đã xếp"
+            value={assigned}
+            hint={capacity ? `${Math.round((assigned / capacity) * 100)}% sức chứa` : undefined}
+          />
         </div>
       }
     >
@@ -241,14 +197,6 @@ export function VehiclesManager({ eventId }: { eventId: string }) {
         onOpenChange={(open) => !open && setEditing(undefined)}
       />
     </EntityContainer>
-  )
-}
-function Metric({ label, value }: { label: string; value: number }) {
-  return (
-    <div className="rounded-lg border bg-card p-4">
-      <div className="text-2xl font-semibold tabular-nums">{value}</div>
-      <div className="text-sm text-muted-foreground">{label}</div>
-    </div>
   )
 }
 function VehicleDialog({

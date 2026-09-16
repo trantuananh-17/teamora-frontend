@@ -1,17 +1,9 @@
 "use client"
 
-import Link from "next/link"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { useRef, useState } from "react"
 import type { ColumnDef } from "@tanstack/react-table"
-import {
-  DownloadIcon,
-  PencilIcon,
-  PlaneIcon,
-  SparklesIcon,
-  Trash2Icon,
-  UploadIcon,
-} from "lucide-react"
+import { DownloadIcon, PencilIcon, PlaneIcon, Trash2Icon, UploadIcon } from "lucide-react"
 
 import {
   EntityContainer,
@@ -21,6 +13,7 @@ import {
   EntityPagination,
   EntitySearch,
 } from "@/components/entity-components"
+import { StatCard } from "@/components/stat-card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
@@ -76,6 +69,9 @@ export function FlightsManager({
   const router = useRouter()
   const pathname = usePathname()
   const current = useSearchParams()
+  const outbound = allFlights.items.filter((item) => item.direction === "outbound")
+  const capacity = allFlights.items.reduce((sum, item) => sum + item.capacity, 0)
+  const assigned = allFlights.items.reduce((sum, item) => sum + item.assignedCount, 0)
 
   function setParam(name: string, value: string, resetPage = true) {
     const next = new URLSearchParams(current.toString())
@@ -170,26 +166,20 @@ export function FlightsManager({
             setEditing(null)
             setFormOpen(true)
           }}
-          actions={
-            <Button asChild variant="outline">
-              <Link href={`/admin/events/${eventId}/flights/allocation`}>
-                <SparklesIcon data-icon="inline-start" />
-                Bàn phân bổ
-              </Link>
-            </Button>
-          }
         />
       }
       stats={
-        <div className="grid gap-3 sm:grid-cols-3">
-          <Metric label="Tổng chuyến" value={allFlights.total} />
-          <Metric
-            label="Tổng sức chứa"
-            value={allFlights.items.reduce((sum, item) => sum + item.capacity, 0)}
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+          <StatCard label="Tổng chuyến" value={allFlights.total} />
+          <StatCard
+            label="Chiều đi / về"
+            value={`${outbound.length} / ${allFlights.items.length - outbound.length}`}
           />
-          <Metric
+          <StatCard label="Tổng sức chứa" value={capacity} />
+          <StatCard
             label="Đã phân chỗ"
-            value={allFlights.items.reduce((sum, item) => sum + item.assignedCount, 0)}
+            value={assigned}
+            hint={capacity ? `${Math.round((assigned / capacity) * 100)}% sức chứa` : undefined}
           />
         </div>
       }
@@ -316,14 +306,5 @@ export function FlightsManager({
         </DialogContent>
       </Dialog>
     </EntityContainer>
-  )
-}
-
-function Metric({ label, value }: { label: string; value: number }) {
-  return (
-    <div className="rounded-lg border bg-card p-4">
-      <div className="text-2xl font-semibold tabular-nums">{value}</div>
-      <div className="text-sm text-muted-foreground">{label}</div>
-    </div>
   )
 }

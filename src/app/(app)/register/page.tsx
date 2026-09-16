@@ -2,17 +2,17 @@ import { Suspense } from "react"
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query"
 import { CalendarDaysIcon, ClipboardCheckIcon, Loader2Icon, RouteIcon } from "lucide-react"
 import type { Metadata } from "next"
-import { redirect } from "next/navigation"
 
+import { NoEventTab } from "@/components/locked-tab"
 import { EventStatusBadge } from "@/components/status-badge"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@/components/ui/empty"
 import { getMyEmployeeProfile } from "@/features/employees/service/employees.service"
 import { getCurrentEvent } from "@/features/events/service/events.service"
 import { getQueryClient } from "@/lib/get-query-client"
 import { getPickupPoints, getTeams } from "@/features/registration/service/master-data.service"
 import { prefetchMyRegistration } from "@/features/registration/server/prefetch"
 import { RegistrationContainer } from "@/features/registration/components/registration-container"
+import { requireAuth } from "@/lib/auth"
 
 export const metadata: Metadata = { title: "Đăng ký tham gia" }
 
@@ -25,31 +25,11 @@ function formatDeadline(date: Date | null) {
   }).format(date)
 }
 
+/** A tab, not a gate: after `registration_open` the form stays visible, read-only. */
 export default async function RegisterPage() {
+  await requireAuth()
   const event = await getCurrentEvent()
-  if (!event) {
-    return (
-      <Card className="mx-auto w-full max-w-3xl">
-        <CardContent>
-          <Empty>
-            <EmptyHeader>
-              <EmptyMedia variant="icon">
-                <CalendarDaysIcon />
-              </EmptyMedia>
-              <EmptyTitle>Chưa có kỳ Team Building hiện hành</EmptyTitle>
-              <EmptyDescription>
-                Ban Tổ chức sẽ thông báo khi kỳ mới mở đăng ký. Bạn không cần thực hiện thao tác nào
-                lúc này.
-              </EmptyDescription>
-            </EmptyHeader>
-          </Empty>
-        </CardContent>
-      </Card>
-    )
-  }
-  if (["information_published", "event_started", "event_completed"].includes(event.status)) {
-    redirect("/")
-  }
+  if (!event) return <NoEventTab />
 
   const eventId = event.id
 
@@ -64,7 +44,7 @@ export default async function RegisterPage() {
     <div className="flex w-full flex-col gap-6">
       <Card className="overflow-hidden">
         <div className="grid lg:grid-cols-[minmax(0,1.6fr)_minmax(20rem,0.8fr)]">
-          <CardHeader className="gap-4 border-b bg-primary/5 p-6 sm:p-8 lg:border-r lg:border-b-0">
+          <CardHeader className="gap-4 border-b p-6 sm:p-8 lg:border-r lg:border-b-0">
             <div className="flex flex-wrap items-center gap-2">
               <EventStatusBadge status={event.status} />
               <span className="text-xs text-muted-foreground">Mã kỳ {event.code}</span>

@@ -1,8 +1,12 @@
+import type { Metadata } from "next"
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query"
 import { VehicleAllocationWorkbench } from "@/features/logistics/components"
 import { prefetchVehicleAllocation } from "@/features/logistics/server/prefetch"
 import { requireOrganizer } from "@/lib/auth"
 import { getQueryClient } from "@/lib/get-query-client"
+
+export const metadata: Metadata = { title: "Phân xe" }
+
 export default async function VehicleAllocationPage({
   params,
   searchParams,

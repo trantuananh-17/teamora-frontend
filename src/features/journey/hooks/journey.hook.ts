@@ -2,9 +2,15 @@
 import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-query"
 import { toast } from "sonner"
 import { errorMessage } from "@/lib/api-error"
-import { contentOptions, dashboardOptions, journeyKeys } from "../options/journey.options"
+import {
+  contentOptions,
+  dashboardOptions,
+  journeyKeys,
+  journeyOptions,
+} from "../options/journey.options"
 import * as service from "../service/journey.service"
 
+export const useJourney = (eventId: string) => useSuspenseQuery(journeyOptions(eventId))
 export const useDashboard = (id: string) => useSuspenseQuery(dashboardOptions(id))
 export const useContent = (id: string) => useSuspenseQuery(contentOptions(id))
 function useJourneyMutation<T>(

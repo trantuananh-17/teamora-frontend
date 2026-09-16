@@ -25,7 +25,7 @@ export default async function EventTeamsPage({ params }: { params: Promise<{ eve
       />
       <HydrationBoundary state={dehydrate(getQueryClient())}>
         <ErrorBoundary fallback={<EntityStateView title="Không tải được danh sách Team" />}>
-          <Suspense fallback={<EntityTableSkeleton columns={4} rows={5} />}>
+          <Suspense fallback={<EntityTableSkeleton columns={5} rows={5} />}>
             <TeamsPanel eventId={eventId} />
           </Suspense>
         </ErrorBoundary>

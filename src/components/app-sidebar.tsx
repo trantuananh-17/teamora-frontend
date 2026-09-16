@@ -13,10 +13,13 @@ import {
   ClipboardCheckIcon,
   ChevronsUpDownIcon,
   LayoutDashboardIcon,
+  LayoutGridIcon,
   HistoryIcon,
   LogOutIcon,
   MapPinIcon,
   PlaneTakeoffIcon,
+  SparklesIcon,
+  TimerIcon,
   UsersIcon,
   UsersRoundIcon,
 } from "lucide-react"
@@ -49,14 +52,11 @@ import { eventsListOptions } from "@/features/events/options/events.options"
 import type { Event } from "@/features/events/service/events.service"
 
 /**
- * The nav is shaped like the data model, not like a flat list of screens.
+ * The nav is grouped by the organiser's job, not by which table a screen edits
+ * (S7-SPEC §B2). Every URL is an existing route — regrouping changed no paths.
  *
- * Ragenta's console is organised by which backend owns a table; Teamora's axis
- * is the edition (ADR-004), so the menu splits into what belongs to the edition
- * you are working on and what belongs to the company across all of them. That
- * split is the same one that decides whether a table carries `eventId`, and
- * putting it on screen is what stops an organiser editing last year's teams
- * while two editions are open.
+ * `:eventId` is substituted with the active edition (ADR-004). Items without it
+ * belong to the company across all editions.
  */
 
 export interface NavItem {
@@ -66,24 +66,86 @@ export interface NavItem {
   url: string
 }
 
-export const EVENT_NAV: NavItem[] = [
-  { title: "Tổng quan", icon: LayoutDashboardIcon, url: "/admin/events/:eventId" },
-  { title: "Đăng ký", icon: ClipboardCheckIcon, url: "/admin/events/:eventId/registrations" },
-  { title: "Chuyến bay", icon: PlaneTakeoffIcon, url: "/admin/events/:eventId/flights" },
-  { title: "Xe đưa đón", icon: BusIcon, url: "/admin/events/:eventId/vehicles" },
-  { title: "Khách sạn & phòng", icon: BedDoubleIcon, url: "/admin/events/:eventId/accommodations" },
-  { title: "Lịch trình & nội dung", icon: CalendarDaysIcon, url: "/admin/events/:eventId/content" },
-  { title: "Email & thông báo", icon: BellRingIcon, url: "/admin/events/:eventId/notifications" },
-  { title: "Nhật ký thay đổi", icon: HistoryIcon, url: "/admin/events/:eventId/audit-log" },
-  { title: "Team / Bộ phận", icon: UsersRoundIcon, url: "/admin/events/:eventId/teams" },
-  { title: "Điểm đón", icon: MapPinIcon, url: "/admin/events/:eventId/pickup-points" },
+export interface NavGroupDef {
+  /** Empty for the dashboard group: one item needs no heading. */
+  label: string
+  items: NavItem[]
+}
+
+export const ADMIN_NAV: NavGroupDef[] = [
+  {
+    label: "",
+    items: [
+      { title: "Bảng điều khiển kỳ", icon: LayoutDashboardIcon, url: "/admin/events/:eventId" },
+    ],
+  },
+  {
+    label: "Đăng ký",
+    items: [
+      {
+        title: "Danh sách đăng ký",
+        icon: ClipboardCheckIcon,
+        url: "/admin/events/:eventId/registrations",
+      },
+      { title: "Team / Bộ phận", icon: UsersRoundIcon, url: "/admin/events/:eventId/teams" },
+      { title: "Điểm đón", icon: MapPinIcon, url: "/admin/events/:eventId/pickup-points" },
+    ],
+  },
+  {
+    label: "Hậu cần",
+    items: [
+      { title: "Chuyến bay", icon: PlaneTakeoffIcon, url: "/admin/events/:eventId/flights" },
+      {
+        title: "Phân chuyến bay",
+        icon: SparklesIcon,
+        url: "/admin/events/:eventId/flights/allocation",
+      },
+      { title: "Xe đưa đón", icon: BusIcon, url: "/admin/events/:eventId/vehicles" },
+      { title: "Phân xe", icon: SparklesIcon, url: "/admin/events/:eventId/vehicles/allocation" },
+      {
+        title: "Khách sạn & phòng",
+        icon: BedDoubleIcon,
+        url: "/admin/events/:eventId/accommodations",
+      },
+    ],
+  },
+  {
+    label: "Gala Dinner",
+    items: [
+      { title: "Sơ đồ bàn", icon: LayoutGridIcon, url: "/admin/events/:eventId/gala/tables" },
+      { title: "Phiên chọn ghế", icon: TimerIcon, url: "/admin/events/:eventId/gala/session" },
+    ],
+  },
+  {
+    label: "Truyền thông",
+    items: [
+      {
+        title: "Lịch trình & nội dung",
+        icon: CalendarDaysIcon,
+        url: "/admin/events/:eventId/content",
+      },
+      {
+        title: "Email & thông báo",
+        icon: BellRingIcon,
+        url: "/admin/events/:eventId/notifications",
+      },
+    ],
+  },
+  {
+    label: "Hệ thống",
+    items: [
+      { title: "Tất cả các kỳ", icon: CalendarDaysIcon, url: "/admin" },
+      { title: "Cán bộ nhân viên", icon: UsersIcon, url: "/admin/employees" },
+      { title: "Địa điểm làm việc", icon: BuildingIcon, url: "/admin/work-locations" },
+      { title: "Nhật ký thay đổi", icon: HistoryIcon, url: "/admin/events/:eventId/audit-log" },
+    ],
+  },
 ]
 
-export const SHARED_NAV: NavItem[] = [
-  { title: "Tất cả các kỳ", icon: CalendarDaysIcon, url: "/admin" },
-  { title: "Địa điểm làm việc", icon: BuildingIcon, url: "/admin/work-locations" },
-  { title: "Cán bộ nhân viên", icon: UsersIcon, url: "/admin/employees" },
-]
+const ALL_ITEMS = ADMIN_NAV.flatMap((group) => group.items)
+/** Flat views for the breadcrumb in `app-header.tsx`. */
+export const EVENT_NAV: NavItem[] = ALL_ITEMS.filter((item) => item.url.includes(":eventId"))
+export const SHARED_NAV: NavItem[] = ALL_ITEMS.filter((item) => !item.url.includes(":eventId"))
 
 /** The edition in the URL, or the newest one when the screen is not scoped to one. */
 export function useActiveEvent(events: Event[] | undefined) {
@@ -135,32 +197,24 @@ function EventSwitcher({ events, active }: { events: Event[]; active: Event }) {
 }
 
 function NavGroup({
-  label,
-  items,
+  group,
   eventId,
-  pathname,
+  activeUrl,
 }: {
-  label: string
-  items: NavItem[]
+  group: NavGroupDef
   eventId?: string
-  pathname: string
+  activeUrl?: string
 }) {
   return (
-    <SidebarGroup>
-      <SidebarGroupLabel>{label}</SidebarGroupLabel>
+    <SidebarGroup className="py-1">
+      {group.label && <SidebarGroupLabel className="h-6">{group.label}</SidebarGroupLabel>}
       <SidebarGroupContent>
         <SidebarMenu>
-          {items.map((item) => {
+          {group.items.map((item) => {
             const url = eventId ? item.url.replace(":eventId", eventId) : item.url
-            // An exact match for the two roots, because "/admin" and
-            // "/admin/events/:id" are prefixes of everything below them and a
-            // prefix test would light up three items at once.
-            const isRoot = url === "/admin" || /^\/admin\/events\/[^/]+$/.test(url)
-            const isActive = isRoot ? pathname === url : pathname.startsWith(url)
-
             return (
               <SidebarMenuItem key={item.url}>
-                <SidebarMenuButton asChild isActive={isActive} tooltip={item.title}>
+                <SidebarMenuButton asChild isActive={url === activeUrl} tooltip={item.title}>
                   <Link href={url} prefetch>
                     <item.icon className="size-4" />
                     <span>{item.title}</span>
@@ -189,6 +243,14 @@ export function AppSidebar({
   // one list; a skeleton in the switcher costs nothing.
   const { data: events, isPending } = useQuery(eventsListOptions())
   const active = useActiveEvent(events?.items)
+
+  // Longest match wins: "/admin", "/admin/events/:id" and ".../flights" are all
+  // prefixes of screens below them, and only one item may light up.
+  const activeUrl = ALL_ITEMS.map((item) =>
+    active ? item.url.replace(":eventId", active.id) : item.url,
+  )
+    .filter((url) => pathname === url || pathname.startsWith(`${url}/`))
+    .sort((a, b) => b.length - a.length)[0]
 
   return (
     <Sidebar collapsible="icon" {...props}>
@@ -223,10 +285,20 @@ export function AppSidebar({
       </SidebarHeader>
 
       <SidebarContent>
-        {active && (
-          <NavGroup label="Kỳ này" items={EVENT_NAV} eventId={active.id} pathname={pathname} />
-        )}
-        <NavGroup label="Dùng chung mọi kỳ" items={SHARED_NAV} pathname={pathname} />
+        {ADMIN_NAV.map((group) => {
+          const items = active
+            ? group.items
+            : group.items.filter((item) => !item.url.includes(":eventId"))
+          if (!items.length) return null
+          return (
+            <NavGroup
+              key={group.label || "dashboard"}
+              group={{ ...group, items }}
+              eventId={active?.id}
+              activeUrl={activeUrl}
+            />
+          )
+        })}
       </SidebarContent>
 
       <SidebarFooter>

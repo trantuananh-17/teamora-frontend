@@ -87,6 +87,12 @@ export const journeySchema = z.object({
   flights: z.array(flightSchema),
   vehicles: z.array(vehicleSchema),
   accommodation: accommodationSchema.nullable(),
+  /** Names of the others in the same room, empty when alone or unassigned. */
+  roommates: z.array(z.string()).default([]),
+  /** Null until the team confirmed its seats (S7 §8). */
+  gala: z
+    .object({ seats: z.array(z.object({ tableName: z.string(), seatNo: z.number() })) })
+    .nullable(),
   schedule: z.array(scheduleItemSchema),
   announcements: z.array(announcementSchema),
 })

@@ -2,7 +2,6 @@
 
 import type { ColumnDef } from "@tanstack/react-table"
 import {
-  ArrowLeftIcon,
   CheckCircle2Icon,
   LockIcon,
   PencilIcon,
@@ -10,16 +9,17 @@ import {
   UnlockIcon,
   XCircleIcon,
 } from "lucide-react"
-import Link from "next/link"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { useState } from "react"
 
 import {
   EntityContainer,
   EntityDataTable,
-  EntityHeader,
+  EntityEmptyView,
   EntityPagination,
 } from "@/components/entity-components"
+import { PageHeader } from "@/components/page-header"
+import { StatCard } from "@/components/stat-card"
 import { Badge } from "@/components/ui/badge"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { Button } from "@/components/ui/button"
@@ -77,6 +77,8 @@ export function VehicleAllocationWorkbench({
   const commit = useCommitVehicles(eventId)
   const discard = useDiscardVehicles(eventId)
   const pending = runs.find((run) => run.status === "preview")
+  const latest = runs[0]
+  const canPreview = vehicles.items.length > 0 && assignments.total > 0
   const vehicleById = new Map(vehicles.items.map((vehicle) => [vehicle.id, vehicle]))
   const displayRows: DisplayAssignment[] = assignments.items.map((row) => {
     if (!pending || row.assignment?.locked) return { ...row, preview: false }
@@ -124,6 +126,7 @@ export function VehicleAllocationWorkbench({
       accessorKey: "leg",
       header: "Chặng",
       cell: ({ row }) => <Badge variant="outline">{labels[row.original.leg]}</Badge>,
+      meta: { priority: "secondary" },
     },
     {
       id: "vehicle",
@@ -153,6 +156,7 @@ export function VehicleAllocationWorkbench({
         ) : (
           "—"
         ),
+      meta: { priority: "tertiary" },
     },
     {
       id: "actions",
@@ -201,55 +205,80 @@ export function VehicleAllocationWorkbench({
       ),
     },
   ]
-  const actions = (
-    <div className="flex gap-2">
-      <Button asChild variant="outline">
-        <Link href={`/admin/events/${eventId}/vehicles`}>
-          <ArrowLeftIcon />
-          Danh sách xe
-        </Link>
-      </Button>
-      {pending ? (
-        <>
-          <Button
-            variant="outline"
-            disabled={discard.isPending}
-            onClick={() => discard.mutate(pending.id)}
-          >
-            <XCircleIcon />
-            Bỏ preview
-          </Button>
-          <Button disabled={commit.isPending} onClick={() => commit.mutate(pending.id)}>
-            <CheckCircle2Icon />
-            Commit
-          </Button>
-        </>
-      ) : (
-        <Button disabled={preview.isPending} onClick={() => preview.mutate()}>
-          <SparklesIcon />
-          Chạy preview
-        </Button>
-      )}
-    </div>
-  )
   return (
     <EntityContainer
       header={
-        <EntityHeader
-          title="Bàn phân xe"
-          description="Preview được chiếu trực tiếp lên bảng; chỉ commit sau khi đã kiểm tra đủ bốn chặng."
-          actions={actions}
+        <PageHeader
+          title="Phân xe"
+          description="Xếp xe theo chuyến bay đã chốt. Preview được chiếu trực tiếp lên bảng; chỉ commit sau khi đã kiểm tra đủ bốn chặng."
         />
       }
       stats={
-        pending && (
-          <div className="grid gap-3 sm:grid-cols-4">
-            <Metric label="Đang preview" value={pending.stats.assigned} />
-            <Metric label="Chưa xếp" value={pending.stats.unassigned} />
-            <Metric label="Chỗ còn" value={pending.stats.remainingSlots} />
-            <Metric label="Team bị tách" value={pending.stats.teamsSplit} />
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+          <StatCard
+            label="Lượt đã xếp"
+            value={latest?.stats.assigned ?? 0}
+            hint="Trong phương án gần nhất"
+          />
+          <StatCard
+            label="Chưa xếp"
+            value={<Count value={latest?.stats.unassigned ?? 0} tone="destructive" />}
+            hint="Cần xử lý trước"
+          />
+          <StatCard
+            label="Chỗ còn lại"
+            value={
+              latest?.stats.remainingSlots ??
+              vehicles.items.reduce((sum, item) => sum + item.capacity, 0)
+            }
+            hint="Trong phương án gần nhất"
+          />
+          <StatCard
+            label="Team bị tách"
+            value={<Count value={latest?.stats.teamsSplit ?? 0} tone="warning" />}
+            hint="Cần kiểm tra"
+          />
+        </div>
+      }
+      actions={
+        <div className="flex flex-col gap-3 rounded-lg border bg-card p-4 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <div className="flex items-center gap-2 font-medium">
+              {pending ? "Đang xem phương án preview" : "Sẵn sàng tạo phương án mới"}
+              {pending && <Badge variant="secondary">Chưa áp dụng</Badge>}
+            </div>
+            <div className="text-sm text-muted-foreground">
+              Preview không thay đổi phân bổ hiện tại; các dòng đã khóa luôn được giữ nguyên.
+            </div>
           </div>
-        )
+          <div className="flex flex-wrap gap-2">
+            {pending ? (
+              <>
+                <Button
+                  variant="outline"
+                  disabled={discard.isPending}
+                  onClick={() => discard.mutate(pending.id)}
+                >
+                  <XCircleIcon data-icon="inline-start" />
+                  Bỏ phương án
+                </Button>
+                <Button disabled={commit.isPending} onClick={() => commit.mutate(pending.id)}>
+                  <CheckCircle2Icon data-icon="inline-start" />
+                  Áp dụng
+                </Button>
+              </>
+            ) : (
+              <Button
+                variant="outline"
+                disabled={!canPreview || preview.isPending}
+                onClick={() => preview.mutate()}
+              >
+                <SparklesIcon data-icon="inline-start" />
+                Chạy preview
+              </Button>
+            )}
+          </div>
+        </div>
       }
       pagination={
         <EntityPagination
@@ -261,7 +290,16 @@ export function VehicleAllocationWorkbench({
         />
       }
     >
-      <EntityDataTable columns={columns} data={displayRows} />
+      <EntityDataTable
+        columns={columns}
+        data={displayRows}
+        emptyView={
+          <EntityEmptyView
+            title="Chưa có lượt xe nào"
+            message="Danh sách chỉ gồm CBNV tham gia có đăng ký xe. Cần có xe và chuyến bay đã chốt trước khi phân xe."
+          />
+        }
+      />
       <ManualDialog
         key={editing?.registrationId ?? "closed"}
         eventId={eventId}
@@ -273,12 +311,14 @@ export function VehicleAllocationWorkbench({
   )
 }
 
-function Metric({ label, value }: { label: string; value: number }) {
+/** Zero is not a problem, so it keeps the plain colour; only a non-zero count wears the tone. */
+function Count({ value, tone }: { value: number; tone: "warning" | "destructive" }) {
   return (
-    <div className="rounded-lg border bg-card p-4">
-      <div className="text-2xl font-semibold tabular-nums">{value}</div>
-      <div className="text-sm text-muted-foreground">{label}</div>
-    </div>
+    <span
+      className={value ? (tone === "warning" ? "text-warning" : "text-destructive") : undefined}
+    >
+      {value}
+    </span>
   )
 }
 

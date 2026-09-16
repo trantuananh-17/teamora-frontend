@@ -1,5 +1,6 @@
 "use client"
 import { useState } from "react"
+import { parseAsStringLiteral, useQueryState } from "nuqs"
 import { BellRingIcon, CalendarDaysIcon, PencilIcon, PlusIcon, Trash2Icon } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -41,6 +42,7 @@ import type {
 
 type Editor =
   { kind: "schedule"; item?: ScheduleItem } | { kind: "announcement"; item?: Announcement }
+const tabParam = parseAsStringLiteral(["schedule", "announcements"]).withDefault("schedule")
 const localDateTime = (date: Date) => {
   const offset = date.getTimezoneOffset() * 60000
   return new Date(date.getTime() - offset).toISOString().slice(0, 16)
@@ -50,11 +52,12 @@ const shortDate = new Intl.DateTimeFormat("vi-VN", { day: "numeric", month: "num
 
 export function ContentManager({ eventId }: { eventId: string }) {
   const { data } = useContent(eventId)
+  const [tab, setTab] = useQueryState("tab", tabParam)
   const [editor, setEditor] = useState<Editor | null>(null)
   const removeSchedule = useDeleteSchedule(eventId)
   const removeAnnouncement = useDeleteAnnouncement(eventId)
   return (
-    <Tabs defaultValue="schedule" className="gap-4">
+    <Tabs value={tab} onValueChange={(value) => setTab(tabParam.parse(value))} className="gap-4">
       <TabsList>
         <TabsTrigger value="schedule">
           <CalendarDaysIcon />

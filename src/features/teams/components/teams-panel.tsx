@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { useQuery } from "@tanstack/react-query"
 import type { ColumnDef } from "@tanstack/react-table"
 
 import { EntityDataTable, EntityEmptyView } from "@/components/entity-components"
@@ -16,9 +17,62 @@ import {
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import { Switch } from "@/components/ui/switch"
+import { useSetTeamLeader } from "@/features/gala/hooks/gala.hook"
+import { registrationsListOptions } from "@/features/registration/options/registration-admin.options"
 import { useCreateTeam, useSetTeamActive, useTeamsSuspense } from "../hooks/teams.hook"
 import type { Team } from "../service/teams.service"
+
+const NO_LEADER = "none"
+
+/**
+ * S7 §8.3 — the team leader picks Gala seats for the team. Non-suspense query
+ * per row: one suspense boundary per team would waterfall the whole table.
+ */
+function LeaderSelect({ eventId, team }: { eventId: string; team: Team }) {
+  const { data, isPending } = useQuery(
+    registrationsListOptions(eventId, { teamId: team.id, participating: true, limit: 100 }),
+  )
+  const setLeader = useSetTeamLeader(eventId)
+  const members = data?.items ?? []
+  const leader = members.find((registration) => registration.isTeamLeader)
+
+  if (!isPending && members.length === 0) {
+    return <span className="text-xs text-muted-foreground">Chưa có ai tham gia</span>
+  }
+
+  return (
+    <Select
+      value={leader?.id ?? NO_LEADER}
+      disabled={isPending || setLeader.isPending}
+      onValueChange={(value) =>
+        setLeader.mutate({ teamId: team.id, registrationId: value === NO_LEADER ? null : value })
+      }
+    >
+      <SelectTrigger className="w-48" aria-label={`Trưởng Team ${team.name}`}>
+        <SelectValue placeholder="Đang tải…" />
+      </SelectTrigger>
+      <SelectContent>
+        <SelectGroup>
+          <SelectItem value={NO_LEADER}>— Không —</SelectItem>
+          {members.map((registration) => (
+            <SelectItem key={registration.id} value={registration.id}>
+              {registration.user.name}
+            </SelectItem>
+          ))}
+        </SelectGroup>
+      </SelectContent>
+    </Select>
+  )
+}
 
 function ScopeBadge({ team }: { team: Team }) {
   return team.eventId ? (
@@ -66,6 +120,11 @@ function buildColumns(eventId: string): ColumnDef<Team>[] {
       id: "toggle",
       header: "Dùng trên form",
       cell: ({ row }) => <ActiveSwitch eventId={eventId} team={row.original} />,
+    },
+    {
+      id: "leader",
+      header: "Trưởng Team",
+      cell: ({ row }) => <LeaderSelect eventId={eventId} team={row.original} />,
     },
   ]
 }

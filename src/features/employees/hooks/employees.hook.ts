@@ -4,6 +4,7 @@ import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-q
 import { toast } from "sonner"
 
 import { apiErrorBody, errorMessage } from "@/lib/api-error"
+import { authClient } from "@/lib/auth-client"
 import { employeesKeys, employeesListOptions } from "../options/employees.options"
 import {
   importEmployees,
@@ -57,6 +58,24 @@ export function useImportEmployees(onFailure: (failure: ImportFailure | null) =>
       toast.error("Không import được", {
         description: failure?.message ?? (await errorMessage(error)),
       })
+    },
+  })
+}
+
+/** Better Auth owns passwords, so this goes through `authClient`, not ky. */
+export function useChangePassword() {
+  return useMutation({
+    mutationFn: async (input: { currentPassword: string; newPassword: string }) => {
+      const { error } = await authClient.changePassword({ ...input, revokeOtherSessions: true })
+      if (error) throw new Error(error.message ?? "Không đổi được mật khẩu.")
+    },
+    onSuccess: () => {
+      toast.success("Đã đổi mật khẩu", {
+        description: "Các phiên đăng nhập trên thiết bị khác đã bị thu hồi.",
+      })
+    },
+    onError: (error: Error) => {
+      toast.error("Không đổi được mật khẩu", { description: error.message })
     },
   })
 }

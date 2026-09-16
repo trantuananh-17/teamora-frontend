@@ -1,9 +1,12 @@
+import type { Metadata } from "next"
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query"
 
 import { AllocationWorkbench } from "@/features/flights/components"
 import { prefetchFlightAllocation } from "@/features/flights/server/prefetch"
 import { requireOrganizer } from "@/lib/auth"
 import { getQueryClient } from "@/lib/get-query-client"
+
+export const metadata: Metadata = { title: "Phân chuyến bay" }
 
 export default async function FlightAllocationPage({
   params,

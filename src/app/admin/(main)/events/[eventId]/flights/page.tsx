@@ -1,3 +1,4 @@
+import type { Metadata } from "next"
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query"
 
 import { FlightsManager } from "@/features/flights/components"
@@ -11,6 +12,8 @@ import { requireOrganizer } from "@/lib/auth"
 import { getQueryClient } from "@/lib/get-query-client"
 
 type SearchParams = Record<string, string | string[] | undefined>
+
+export const metadata: Metadata = { title: "Chuyến bay" }
 
 export default async function FlightsPage({
   params,

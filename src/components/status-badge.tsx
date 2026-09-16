@@ -120,3 +120,29 @@ export function AllocationFlagBadge({ flag }: { flag: string }) {
     </Tooltip>
   )
 }
+
+/** Gala seat-picking session (S7 §8). `in_progress` is live, so it reads as activity, not success. */
+const GALA_SESSION_STATUS: Record<string, { label: string; tone: Tone }> = {
+  draft: { label: "Chưa bốc thăm", tone: "muted" },
+  drawn: { label: "Đã bốc thăm", tone: "info" },
+  in_progress: { label: "Đang chọn ghế", tone: "info" },
+  completed: { label: "Đã kết thúc", tone: "success" },
+}
+
+export function GalaSessionStatusBadge({ status }: { status: string }) {
+  const mapped = GALA_SESSION_STATUS[status]
+  return <Badge tone={mapped?.tone ?? "muted"}>{mapped?.label ?? status}</Badge>
+}
+
+/** A skipped team is not a fault — the organiser seats it by hand — so it is amber, not red. */
+const GALA_QUEUE_STATUS: Record<string, { label: string; tone: Tone }> = {
+  waiting: { label: "Đang chờ", tone: "muted" },
+  active: { label: "Đang chọn", tone: "info" },
+  done: { label: "Đã chốt", tone: "success" },
+  skipped: { label: "Bỏ lượt", tone: "warning" },
+}
+
+export function GalaQueueStatusBadge({ status }: { status: string }) {
+  const mapped = GALA_QUEUE_STATUS[status]
+  return <Badge tone={mapped?.tone ?? "muted"}>{mapped?.label ?? status}</Badge>
+}

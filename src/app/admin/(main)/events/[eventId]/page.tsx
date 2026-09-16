@@ -1,4 +1,5 @@
 import { Suspense } from "react"
+import type { Metadata } from "next"
 import { HydrationBoundary, dehydrate } from "@tanstack/react-query"
 import { ErrorBoundary } from "react-error-boundary"
 import { DownloadIcon } from "lucide-react"
@@ -11,12 +12,12 @@ import { EventStatusControl } from "@/features/events/components"
 import { DashboardOverview } from "@/features/journey/components/dashboard-overview"
 import { prefetchDashboard } from "@/features/journey/server/prefetch"
 import { prefetchEvent } from "@/features/events/server/prefetch"
-import { prefetchEmployees } from "@/features/employees/server/prefetch"
-import { prefetchPickupPoints } from "@/features/pickup-points/server/prefetch"
-import { prefetchTeams } from "@/features/teams/server/prefetch"
+import { prefetchNotifications } from "@/features/notifications/server/prefetch"
 import { getQueryClient } from "@/lib/get-query-client"
 import { requireOrganizer } from "@/lib/auth"
 import { apiUrl } from "@/lib/ky"
+
+export const metadata: Metadata = { title: "Tổng quan kỳ" }
 
 export default async function EventOverviewPage({
   params,
@@ -28,10 +29,9 @@ export default async function EventOverviewPage({
 
   await Promise.all([
     prefetchEvent(eventId),
-    prefetchTeams(eventId),
-    prefetchPickupPoints(eventId),
-    prefetchEmployees(),
     prefetchDashboard(eventId),
+    // Same literal query as DashboardOverview's failed-email count.
+    prefetchNotifications(eventId, { status: "failed", limit: 1 }),
   ])
 
   // UX only. Reverting is refused by the backend for anyone but a super_admin,
@@ -39,7 +39,7 @@ export default async function EventOverviewPage({
   const canRevert = user.role === "super_admin"
 
   return (
-    <div className="mx-auto flex w-full max-w-5xl flex-col gap-6">
+    <div className="mx-auto flex w-full max-w-6xl flex-col gap-6">
       <PageHeader
         title="Tổng quan kỳ"
         description="Trạng thái kỳ quyết định CBNV làm được gì — không phải vai trò của họ."
@@ -63,7 +63,8 @@ export default async function EventOverviewPage({
         <ErrorBoundary fallback={<EntityStateView title="Không tải được số liệu" />}>
           <Suspense
             fallback={
-              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                <Skeleton className="h-28 rounded-lg" />
                 <Skeleton className="h-28 rounded-lg" />
                 <Skeleton className="h-28 rounded-lg" />
                 <Skeleton className="h-28 rounded-lg" />

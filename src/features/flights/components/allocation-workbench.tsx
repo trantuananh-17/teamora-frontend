@@ -1,12 +1,10 @@
 "use client"
 
-import Link from "next/link"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { useMemo, useState } from "react"
 import type { ColumnDef } from "@tanstack/react-table"
 import {
   AlertTriangleIcon,
-  ArrowLeftIcon,
   CheckCircle2Icon,
   LockIcon,
   RefreshCwIcon,
@@ -201,17 +199,8 @@ export function AllocationWorkbench({
       width="full"
       header={
         <PageHeader
-          back={{ href: `/admin/events/${eventId}/flights`, label: "Quản lý chuyến bay" }}
-          title="Bàn phân bổ chuyến bay"
-          description="Tạo phương án nháp, kiểm tra cảnh báo rồi mới áp dụng vào danh sách chính thức."
-          actions={
-            <Button variant="outline" asChild>
-              <Link href={`/admin/events/${eventId}/flights`}>
-                <ArrowLeftIcon data-icon="inline-start" />
-                Danh sách chuyến
-              </Link>
-            </Button>
-          }
+          title="Phân chuyến bay"
+          description="Tạo phương án nháp, kiểm tra cảnh báo rồi mới áp dụng vào danh sách chính thức. Dòng đã khóa không bao giờ bị ghi đè."
         />
       }
       stats={
