@@ -1,0 +1,40 @@
+# Handover / demo stack for the web app. Pairs with
+# teamora-backend/docker-compose.demo.yml, which must be up first.
+#
+#   docker compose -f docker-compose.demo.yml up --build -d
+#
+# Testers reach the app at http://localhost:3000. To share it, run a tunnel on
+# the host (`ngrok http 3000 --url=<DEMO_PUBLIC_URL>`); the backend demo stack
+# already trusts that origin. Dev stack is docker-compose.yml.
+
+name: teamora-demo-web
+
+services:
+  web:
+    image: teamora-frontend:demo
+    build:
+      context: .
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      HOSTNAME: 0.0.0.0
+      TEAMORA_API_URL: ${TEAMORA_DOCKER_API_URL:-http://host.docker.internal:8080}
+      # Must match APP_BASE_URL / TRUSTED_ORIGINS of the backend demo stack.
+      APP_BASE_URL: ${DEMO_PUBLIC_URL:-https://undebilitating-punctiliously-matt.ngrok-free.dev}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    ports:
+      - "127.0.0.1:${TEAMORA_WEB_PORT:-3000}:3000"
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://127.0.0.1:3000/api/health').then((r) => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))",
+        ]
+      interval: 30s
+      timeout: 10s
+      start_period: 40s
+      retries: 3
